@@ -1,0 +1,259 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/main/MainController.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/multiplayer/SessionManager.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/core/SaveManager.gd" id="3"]
+[ext_resource type="Script" path="res://scripts/audio/AudioManager.gd" id="4"]
+[ext_resource type="Script" path="res://scripts/ui/UIManager.gd" id="5"]
+[ext_resource type="PackedScene" path="res://scenes/ui/InteractionPrompt.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://scenes/ui/RadioStatus.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://scenes/cinematic/FloorCollapseCinematic.tscn" id="8"]
+
+[node name="Main" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 0.0
+offset_bottom = 0.0
+script = ExtResource("1")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 0.0
+offset_bottom = 0.0
+color = Color(0.11, 0.12, 0.14, 1)
+
+[node name="Layout" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = -24.0
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="Columns" type="HBoxContainer" parent="Layout"]
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="WorldColumn" type="VBoxContainer" parent="Layout/Columns"]
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(360, 0)
+theme_override_constants/separation = 18
+
+[node name="Heading" type="Label" parent="Layout/Columns/WorldColumn"]
+layout_mode = 2
+text = "Divergence MVP"
+
+[node name="SubHeading" type="Label" parent="Layout/Columns/WorldColumn"]
+layout_mode = 2
+autowrap_mode = 3
+text = "Phase 1 greybox proving the split-reconverge loop for two local players."
+
+[node name="WorldStatePanel" type="PanelContainer" parent="Layout/Columns/WorldColumn"]
+layout_mode = 2
+
+[node name="WorldStateMargin" type="MarginContainer" parent="Layout/Columns/WorldColumn/WorldStatePanel"]
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="WorldStateBox" type="VBoxContainer" parent="Layout/Columns/WorldColumn/WorldStatePanel/WorldStateMargin"]
+theme_override_constants/separation = 10
+
+[node name="WorldStateTitle" type="Label" parent="Layout/Columns/WorldColumn/WorldStatePanel/WorldStateMargin/WorldStateBox"]
+text = "World State"
+
+[node name="CollapseLabel" type="Label" parent="Layout/Columns/WorldColumn/WorldStatePanel/WorldStateMargin/WorldStateBox"]
+text = "Floor Collapsed: No"
+
+[node name="KeyLabel" type="Label" parent="Layout/Columns/WorldColumn/WorldStatePanel/WorldStateMargin/WorldStateBox"]
+text = "Bedroom Key Taken: No"
+
+[node name="ShedLabel" type="Label" parent="Layout/Columns/WorldColumn/WorldStatePanel/WorldStateMargin/WorldStateBox"]
+text = "Shed Unlocked: No"
+
+[node name="TriggerLabel" type="Label" parent="Layout/Columns/WorldColumn/WorldStatePanel/WorldStateMargin/WorldStateBox"]
+text = "Collapse Triggered By: Nobody Yet"
+
+[node name="RunButtons" type="HBoxContainer" parent="Layout/Columns/WorldColumn"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="ResetButton" type="Button" parent="Layout/Columns/WorldColumn/RunButtons"]
+layout_mode = 2
+text = "Reset Run"
+
+[node name="SaveButton" type="Button" parent="Layout/Columns/WorldColumn/RunButtons"]
+layout_mode = 2
+text = "Save JSON"
+
+[node name="LoadButton" type="Button" parent="Layout/Columns/WorldColumn/RunButtons"]
+layout_mode = 2
+text = "Load JSON"
+
+[node name="InstructionsPanel" type="PanelContainer" parent="Layout/Columns/WorldColumn"]
+layout_mode = 2
+
+[node name="InstructionsMargin" type="MarginContainer" parent="Layout/Columns/WorldColumn/InstructionsPanel"]
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="InstructionsLabel" type="Label" parent="Layout/Columns/WorldColumn/InstructionsPanel/InstructionsMargin"]
+autowrap_mode = 3
+text = "Suggested test: move one player to the hallway, cross to trigger collapse, let the other player take the key in the bedroom, escape outside, then try the optional shed."
+
+[node name="PlayersColumn" type="VBoxContainer" parent="Layout/Columns"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PlayersRow" type="HBoxContainer" parent="Layout/Columns/PlayersColumn"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 24
+
+[node name="Player1Panel" type="PanelContainer" parent="Layout/Columns/PlayersColumn/PlayersRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Player1Margin" type="MarginContainer" parent="Layout/Columns/PlayersColumn/PlayersRow/Player1Panel"]
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="Player1Box" type="VBoxContainer" parent="Layout/Columns/PlayersColumn/PlayersRow/Player1Panel/Player1Margin"]
+theme_override_constants/separation = 10
+
+[node name="Player1Title" type="Label" parent="Layout/Columns/PlayersColumn/PlayersRow/Player1Panel/Player1Margin/Player1Box"]
+text = "Player 1"
+
+[node name="Player1LocationLabel" type="Label" parent="Layout/Columns/PlayersColumn/PlayersRow/Player1Panel/Player1Margin/Player1Box"]
+text = "Location: Upstairs Room"
+
+[node name="Player1InventoryLabel" type="Label" parent="Layout/Columns/PlayersColumn/PlayersRow/Player1Panel/Player1Margin/Player1Box"]
+text = "Inventory: Empty"
+
+[node name="Player1Preview" type="PanelContainer" parent="Layout/Columns/PlayersColumn/PlayersRow/Player1Panel/Player1Margin/Player1Box"]
+custom_minimum_size = Vector2(0, 220)
+size_flags_horizontal = 3
+
+[node name="Player1Actions" type="VBoxContainer" parent="Layout/Columns/PlayersColumn/PlayersRow/Player1Panel/Player1Margin/Player1Box"]
+theme_override_constants/separation = 8
+
+[node name="P1HallwayButton" type="Button" parent="Layout/Columns/PlayersColumn/PlayersRow/Player1Panel/Player1Margin/Player1Box/Player1Actions"]
+text = "Move To Hallway"
+
+[node name="P1CrossButton" type="Button" parent="Layout/Columns/PlayersColumn/PlayersRow/Player1Panel/Player1Margin/Player1Box/Player1Actions"]
+text = "Cross Hallway"
+
+[node name="P1BedroomButton" type="Button" parent="Layout/Columns/PlayersColumn/PlayersRow/Player1Panel/Player1Margin/Player1Box/Player1Actions"]
+text = "Route To Bedroom"
+
+[node name="P1KeyButton" type="Button" parent="Layout/Columns/PlayersColumn/PlayersRow/Player1Panel/Player1Margin/Player1Box/Player1Actions"]
+text = "Take Bedroom Key"
+
+[node name="P1EscapeButton" type="Button" parent="Layout/Columns/PlayersColumn/PlayersRow/Player1Panel/Player1Margin/Player1Box/Player1Actions"]
+text = "Escape Bedroom Window"
+
+[node name="P1DownstairsButton" type="Button" parent="Layout/Columns/PlayersColumn/PlayersRow/Player1Panel/Player1Margin/Player1Box/Player1Actions"]
+text = "Leave Downstairs"
+
+[node name="P1WoodsButton" type="Button" parent="Layout/Columns/PlayersColumn/PlayersRow/Player1Panel/Player1Margin/Player1Box/Player1Actions"]
+text = "Go To Woods Edge"
+
+[node name="P1ShedButton" type="Button" parent="Layout/Columns/PlayersColumn/PlayersRow/Player1Panel/Player1Margin/Player1Box/Player1Actions"]
+text = "Try Shed Door"
+
+[node name="Player2Panel" type="PanelContainer" parent="Layout/Columns/PlayersColumn/PlayersRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Player2Margin" type="MarginContainer" parent="Layout/Columns/PlayersColumn/PlayersRow/Player2Panel"]
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="Player2Box" type="VBoxContainer" parent="Layout/Columns/PlayersColumn/PlayersRow/Player2Panel/Player2Margin"]
+theme_override_constants/separation = 10
+
+[node name="Player2Title" type="Label" parent="Layout/Columns/PlayersColumn/PlayersRow/Player2Panel/Player2Margin/Player2Box"]
+text = "Player 2"
+
+[node name="Player2LocationLabel" type="Label" parent="Layout/Columns/PlayersColumn/PlayersRow/Player2Panel/Player2Margin/Player2Box"]
+text = "Location: Upstairs Room"
+
+[node name="Player2InventoryLabel" type="Label" parent="Layout/Columns/PlayersColumn/PlayersRow/Player2Panel/Player2Margin/Player2Box"]
+text = "Inventory: Empty"
+
+[node name="Player2Preview" type="PanelContainer" parent="Layout/Columns/PlayersColumn/PlayersRow/Player2Panel/Player2Margin/Player2Box"]
+custom_minimum_size = Vector2(0, 220)
+size_flags_horizontal = 3
+
+[node name="Player2Actions" type="VBoxContainer" parent="Layout/Columns/PlayersColumn/PlayersRow/Player2Panel/Player2Margin/Player2Box"]
+theme_override_constants/separation = 8
+
+[node name="P2HallwayButton" type="Button" parent="Layout/Columns/PlayersColumn/PlayersRow/Player2Panel/Player2Margin/Player2Box/Player2Actions"]
+text = "Move To Hallway"
+
+[node name="P2CrossButton" type="Button" parent="Layout/Columns/PlayersColumn/PlayersRow/Player2Panel/Player2Margin/Player2Box/Player2Actions"]
+text = "Cross Hallway"
+
+[node name="P2BedroomButton" type="Button" parent="Layout/Columns/PlayersColumn/PlayersRow/Player2Panel/Player2Margin/Player2Box/Player2Actions"]
+text = "Route To Bedroom"
+
+[node name="P2KeyButton" type="Button" parent="Layout/Columns/PlayersColumn/PlayersRow/Player2Panel/Player2Margin/Player2Box/Player2Actions"]
+text = "Take Bedroom Key"
+
+[node name="P2EscapeButton" type="Button" parent="Layout/Columns/PlayersColumn/PlayersRow/Player2Panel/Player2Margin/Player2Box/Player2Actions"]
+text = "Escape Bedroom Window"
+
+[node name="P2DownstairsButton" type="Button" parent="Layout/Columns/PlayersColumn/PlayersRow/Player2Panel/Player2Margin/Player2Box/Player2Actions"]
+text = "Leave Downstairs"
+
+[node name="P2WoodsButton" type="Button" parent="Layout/Columns/PlayersColumn/PlayersRow/Player2Panel/Player2Margin/Player2Box/Player2Actions"]
+text = "Go To Woods Edge"
+
+[node name="P2ShedButton" type="Button" parent="Layout/Columns/PlayersColumn/PlayersRow/Player2Panel/Player2Margin/Player2Box/Player2Actions"]
+text = "Try Shed Door"
+
+[node name="SessionManager" type="Node" parent="."]
+script = ExtResource("2")
+
+[node name="SaveManager" type="Node" parent="."]
+script = ExtResource("3")
+
+[node name="AudioManager" type="Node" parent="."]
+script = ExtResource("4")
+
+[node name="Overlay" type="CanvasLayer" parent="."]
+
+[node name="UIRoot" type="Control" parent="Overlay"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 0.0
+offset_bottom = 0.0
+mouse_filter = 2
+script = ExtResource("5")
+
+[node name="InteractionPrompt" parent="Overlay/UIRoot" instance=ExtResource("6")]
+
+[node name="RadioStatus" parent="Overlay/UIRoot" instance=ExtResource("7")]
+
+[node name="FloorCollapseCinematic" parent="Overlay/UIRoot" instance=ExtResource("8")]
