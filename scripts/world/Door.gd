@@ -28,7 +28,7 @@ func interact(player_id: String) -> bool:
 				locked = false
 			return entered
 		"Bedroom":
-			return SceneRouter.route_player_to_bedroom(player_id, true)
+			return SceneRouter.route_player_to_bedroom(player_id)
 		_:
 			_emit_prompt("This door is a placeholder and does not lead anywhere yet.")
 			return false

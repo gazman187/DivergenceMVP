@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://scripts/world/GreyboxLocation.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/world/Door.gd" id="2"]
@@ -12,6 +12,9 @@ size = Vector2(12, 220)
 
 [sub_resource type="RectangleShape2D" id="3"]
 size = Vector2(84, 64)
+
+[sub_resource type="RectangleShape2D" id="4"]
+size = Vector2(78, 58)
 
 [node name="UpstairsRoom" type="Node2D"]
 script = ExtResource("1")
@@ -89,6 +92,11 @@ script = ExtResource("2")
 interaction_label = "Step into the hallway"
 target_location = "UpstairsHallway"
 
+[node name="BedroomDoorInteractable" type="Node" parent="."]
+script = ExtResource("2")
+interaction_label = "Break for the bedroom"
+target_location = "Bedroom"
+
 [node name="HallwayDoorZone" type="Area2D" parent="."]
 script = ExtResource("3")
 collision_layer = 2
@@ -106,4 +114,23 @@ offset_left = 198.0
 offset_top = 122.0
 offset_right = 282.0
 offset_bottom = 186.0
+color = Color(0.28, 0.46, 0.58, 0.12)
+
+[node name="BedroomDoorZone" type="Area2D" parent="."]
+script = ExtResource("3")
+collision_layer = 2
+collision_mask = 0
+required_location = "UpstairsRoom"
+zone_label = "Break for the bedroom"
+interactable_path = NodePath("../BedroomDoorInteractable")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BedroomDoorZone"]
+position = Vector2(74, 74)
+shape = SubResource("4")
+
+[node name="Highlight" type="ColorRect" parent="BedroomDoorZone"]
+offset_left = 34.0
+offset_top = 46.0
+offset_right = 112.0
+offset_bottom = 104.0
 color = Color(0.28, 0.46, 0.58, 0.12)

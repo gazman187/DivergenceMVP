@@ -255,7 +255,7 @@ func _on_cross_hallway(player_id: String) -> void:
 
 
 func _on_route_bedroom(player_id: String) -> void:
-	SceneRouter.route_player_to_bedroom(player_id, true)
+	SceneRouter.route_player_to_bedroom(player_id)
 
 
 func _on_take_key(player_id: String) -> void:

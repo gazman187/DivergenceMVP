@@ -36,7 +36,8 @@ func move_player_to_hallway(player_id: String) -> bool:
 		return false
 
 	if GameState.floor_collapsed:
-		return route_player_to_bedroom(player_id, true)
+		EventBus.emit_prompt_changed("The hallway is gone. %s needs to find the bedroom route instead." % GameState.get_player_display_name(player_id))
+		return false
 
 	GameState.set_player_location(player_id, "UpstairsHallway")
 	EventBus.emit_player_routed(player_id, "UpstairsHallway")
@@ -54,7 +55,8 @@ func attempt_hallway_cross(player_id: String) -> bool:
 		return false
 
 	if GameState.floor_collapsed:
-		return route_player_to_bedroom(player_id, true)
+		EventBus.emit_prompt_changed("The collapse blocks the hallway. %s needs to break for the bedroom instead." % GameState.get_player_display_name(player_id))
+		return false
 
 	GameState.mark_floor_collapsed(player_id)
 	GameState.set_player_location(player_id, "Downstairs")
@@ -62,14 +64,13 @@ func attempt_hallway_cross(player_id: String) -> bool:
 	EventBus.emit_player_routed(player_id, "Downstairs")
 
 	var other_player := GameState.get_other_player_id(player_id)
-	if GameState.is_player_upstairs(other_player):
-		GameState.set_player_location(other_player, "Bedroom")
-		EventBus.emit_player_routed(other_player, "Bedroom")
-
 	EventBus.emit_cinematic_requested("res://scenes/cinematic/FloorCollapseCinematic.tscn")
-	EventBus.emit_prompt_changed("%s crashes through the floor. The other player is cut off upstairs and forced into the bedroom route." % GameState.get_player_display_name(player_id))
+	EventBus.emit_prompt_changed("%s crashes through the floor. %s is cut off upstairs and must find the bedroom route manually." % [
+		GameState.get_player_display_name(player_id),
+		GameState.get_player_display_name(other_player)
+	])
 	EventBus.emit_event_logged("The floor collapses beneath %s." % GameState.get_player_display_name(player_id), "critical")
-	EventBus.emit_event_logged("%s is cut off upstairs and forced into the bedroom route." % GameState.get_player_display_name(other_player), "critical")
+	EventBus.emit_event_logged("%s is cut off upstairs. The bedroom is now the only way through." % GameState.get_player_display_name(other_player), "critical")
 	EventBus.emit_audio_requested("floor_collapse")
 	refresh_radio_status()
 	return true

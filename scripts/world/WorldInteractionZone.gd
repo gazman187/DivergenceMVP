@@ -78,6 +78,10 @@ func _resolve_prompt_label(player_id: String) -> String:
 				return "Enter the optional shed"
 			if not GameState.player_has_item(player_id, door.required_item):
 				return "The shed is locked. The bedroom key will open it."
+		elif door.target_location == "Bedroom":
+			if not GameState.floor_collapsed:
+				return "The bedroom route is only needed once the hallway gives way."
+			return "Slip into the bedroom"
 		elif door.target_location == "WoodsEdge":
 			return "Push out to the woods edge"
 		elif door.target_location == "Outside" and GameState.get_player_location(player_id) == "WoodsEdge":
