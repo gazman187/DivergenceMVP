@@ -1,0 +1,26 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/TriggerZone.gd" id="1"]
+
+[node name="UpstairsHallway" type="PanelContainer"]
+custom_minimum_size = Vector2(0, 200)
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+
+[node name="Title" type="Label" parent="MarginContainer/VBoxContainer"]
+text = "Upstairs Hallway"
+
+[node name="Description" type="Label" parent="MarginContainer/VBoxContainer"]
+autowrap_mode = 3
+text = "Greybox weak point. The first player who commits to crossing here triggers the floor collapse."
+
+[node name="CollapseTrigger" type="Node" parent="."]
+script = ExtResource("1")
+interaction_label = "Cross the weak hallway"
+trigger_action = "hallway_collapse"
