@@ -1,0 +1,28 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/Door.gd" id="1"]
+
+[node name="Outside" type="PanelContainer"]
+custom_minimum_size = Vector2(0, 200)
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+
+[node name="Title" type="Label" parent="MarginContainer/VBoxContainer"]
+text = "Outside"
+
+[node name="Description" type="Label" parent="MarginContainer/VBoxContainer"]
+autowrap_mode = 3
+text = "Greybox reconvergence zone. Both players can meet here after the split, then optionally test the shed if the key is available."
+
+[node name="ShedDoor" type="Node" parent="."]
+script = ExtResource("1")
+interaction_label = "Try shed door"
+target_location = "Shed"
+locked = true
+required_item = "bedroom_key"
