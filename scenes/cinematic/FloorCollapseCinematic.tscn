@@ -17,6 +17,14 @@ offset_right = 0.0
 offset_bottom = 0.0
 color = Color(0, 0, 0, 0.72)
 
+[node name="Flash" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 0.0
+offset_bottom = 0.0
+color = Color(0.95, 0.95, 0.95, 0.0)
+
 [node name="CenterContainer" type="CenterContainer" parent="."]
 anchors_preset = 15
 anchor_right = 1.0
@@ -33,7 +41,14 @@ theme_override_constants/margin_top = 24
 theme_override_constants/margin_right = 24
 theme_override_constants/margin_bottom = 24
 
-[node name="CollapseText" type="Label" parent="CenterContainer/PanelContainer/MarginContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer"]
+theme_override_constants/separation = 10
+
+[node name="ImpactTitle" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
+horizontal_alignment = 1
+text = "CRACK"
+
+[node name="ImpactSubtitle" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
 horizontal_alignment = 1
 vertical_alignment = 1
-text = "CRACK!\nThe weak hallway floor gives way."
+text = "The weak hallway floor gives way."

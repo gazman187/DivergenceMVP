@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://scripts/main/MainController.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/multiplayer/SessionManager.gd" id="2"]
@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/InteractionPrompt.tscn" id="6"]
 [ext_resource type="PackedScene" path="res://scenes/ui/RadioStatus.tscn" id="7"]
 [ext_resource type="PackedScene" path="res://scenes/cinematic/FloorCollapseCinematic.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://scenes/ui/EventFeed.tscn" id="9"]
 
 [node name="Main" type="Control"]
 layout_mode = 3
@@ -25,7 +26,27 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 offset_right = 0.0
 offset_bottom = 0.0
-color = Color(0.11, 0.12, 0.14, 1)
+color = Color(0.08, 0.09, 0.11, 1)
+
+[node name="ColdGlow" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 780.0
+offset_top = -40.0
+offset_right = 0.0
+offset_bottom = 320.0
+color = Color(0.2, 0.34, 0.38, 0.11)
+
+[node name="WarmGlow" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 0
+offset_left = 0.0
+offset_top = 560.0
+offset_right = 540.0
+offset_bottom = 900.0
+color = Color(0.45, 0.26, 0.14, 0.08)
 
 [node name="Layout" type="MarginContainer" parent="."]
 layout_mode = 1
@@ -48,17 +69,17 @@ theme_override_constants/separation = 24
 [node name="WorldColumn" type="VBoxContainer" parent="Layout/Columns"]
 layout_mode = 2
 size_flags_horizontal = 3
-custom_minimum_size = Vector2(360, 0)
+custom_minimum_size = Vector2(390, 0)
 theme_override_constants/separation = 18
 
 [node name="Heading" type="Label" parent="Layout/Columns/WorldColumn"]
 layout_mode = 2
-text = "Divergence MVP"
+text = "DIVERGENCE // MVP"
 
 [node name="SubHeading" type="Label" parent="Layout/Columns/WorldColumn"]
 layout_mode = 2
 autowrap_mode = 3
-text = "Phase 1 greybox proving the split-reconverge loop for two local players."
+text = "Atmospheric local greybox for the collapse, separation, and reconvergence loop."
 
 [node name="WorldStatePanel" type="PanelContainer" parent="Layout/Columns/WorldColumn"]
 layout_mode = 2
@@ -70,10 +91,10 @@ theme_override_constants/margin_right = 16
 theme_override_constants/margin_bottom = 16
 
 [node name="WorldStateBox" type="VBoxContainer" parent="Layout/Columns/WorldColumn/WorldStatePanel/WorldStateMargin"]
-theme_override_constants/separation = 10
+theme_override_constants/separation = 8
 
 [node name="WorldStateTitle" type="Label" parent="Layout/Columns/WorldColumn/WorldStatePanel/WorldStateMargin/WorldStateBox"]
-text = "World State"
+text = "HOUSE STATE"
 
 [node name="CollapseLabel" type="Label" parent="Layout/Columns/WorldColumn/WorldStatePanel/WorldStateMargin/WorldStateBox"]
 text = "Floor Collapsed: No"
@@ -86,6 +107,15 @@ text = "Shed Unlocked: No"
 
 [node name="TriggerLabel" type="Label" parent="Layout/Columns/WorldColumn/WorldStatePanel/WorldStateMargin/WorldStateBox"]
 text = "Collapse Triggered By: Nobody Yet"
+
+[node name="KeyHolderLabel" type="Label" parent="Layout/Columns/WorldColumn/WorldStatePanel/WorldStateMargin/WorldStateBox"]
+text = "Key Holder: Nobody"
+
+[node name="LinkLabel" type="Label" parent="Layout/Columns/WorldColumn/WorldStatePanel/WorldStateMargin/WorldStateBox"]
+text = "Radio Link: Clear"
+
+[node name="ReconvergedLabel" type="Label" parent="Layout/Columns/WorldColumn/WorldStatePanel/WorldStateMargin/WorldStateBox"]
+text = "Group State: Together Upstairs"
 
 [node name="RunButtons" type="HBoxContainer" parent="Layout/Columns/WorldColumn"]
 layout_mode = 2
@@ -114,7 +144,7 @@ theme_override_constants/margin_bottom = 16
 
 [node name="InstructionsLabel" type="Label" parent="Layout/Columns/WorldColumn/InstructionsPanel/InstructionsMargin"]
 autowrap_mode = 3
-text = "Suggested test: move one player to the hallway, cross to trigger collapse, let the other player take the key in the bedroom, escape outside, then try the optional shed."
+text = "Run the same prototype loop, but with stronger radio feedback, event narration, and a more dramatic collapse presentation."
 
 [node name="PlayersColumn" type="VBoxContainer" parent="Layout/Columns"]
 layout_mode = 2
@@ -139,13 +169,16 @@ theme_override_constants/margin_bottom = 16
 theme_override_constants/separation = 10
 
 [node name="Player1Title" type="Label" parent="Layout/Columns/PlayersColumn/PlayersRow/Player1Panel/Player1Margin/Player1Box"]
-text = "Player 1"
+text = "PLAYER 1"
 
 [node name="Player1LocationLabel" type="Label" parent="Layout/Columns/PlayersColumn/PlayersRow/Player1Panel/Player1Margin/Player1Box"]
 text = "Location: Upstairs Room"
 
 [node name="Player1InventoryLabel" type="Label" parent="Layout/Columns/PlayersColumn/PlayersRow/Player1Panel/Player1Margin/Player1Box"]
 text = "Inventory: Empty"
+
+[node name="Player1StatusLabel" type="Label" parent="Layout/Columns/PlayersColumn/PlayersRow/Player1Panel/Player1Margin/Player1Box"]
+text = "Status: Waiting upstairs"
 
 [node name="Player1Preview" type="PanelContainer" parent="Layout/Columns/PlayersColumn/PlayersRow/Player1Panel/Player1Margin/Player1Box"]
 custom_minimum_size = Vector2(0, 220)
@@ -192,13 +225,16 @@ theme_override_constants/margin_bottom = 16
 theme_override_constants/separation = 10
 
 [node name="Player2Title" type="Label" parent="Layout/Columns/PlayersColumn/PlayersRow/Player2Panel/Player2Margin/Player2Box"]
-text = "Player 2"
+text = "PLAYER 2"
 
 [node name="Player2LocationLabel" type="Label" parent="Layout/Columns/PlayersColumn/PlayersRow/Player2Panel/Player2Margin/Player2Box"]
 text = "Location: Upstairs Room"
 
 [node name="Player2InventoryLabel" type="Label" parent="Layout/Columns/PlayersColumn/PlayersRow/Player2Panel/Player2Margin/Player2Box"]
 text = "Inventory: Empty"
+
+[node name="Player2StatusLabel" type="Label" parent="Layout/Columns/PlayersColumn/PlayersRow/Player2Panel/Player2Margin/Player2Box"]
+text = "Status: Waiting upstairs"
 
 [node name="Player2Preview" type="PanelContainer" parent="Layout/Columns/PlayersColumn/PlayersRow/Player2Panel/Player2Margin/Player2Box"]
 custom_minimum_size = Vector2(0, 220)
@@ -255,5 +291,7 @@ script = ExtResource("5")
 [node name="InteractionPrompt" parent="Overlay/UIRoot" instance=ExtResource("6")]
 
 [node name="RadioStatus" parent="Overlay/UIRoot" instance=ExtResource("7")]
+
+[node name="EventFeed" parent="Overlay/UIRoot" instance=ExtResource("9")]
 
 [node name="FloorCollapseCinematic" parent="Overlay/UIRoot" instance=ExtResource("8")]

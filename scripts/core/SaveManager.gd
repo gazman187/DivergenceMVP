@@ -14,6 +14,7 @@ func save_world_state() -> bool:
 	save_file.close()
 	EventBus.emit_save_completed(SAVE_PATH)
 	EventBus.emit_prompt_changed("Prototype state saved to %s." % SAVE_PATH)
+	EventBus.emit_event_logged("World state archived to local tape.", "system")
 	return true
 
 
@@ -39,4 +40,5 @@ func load_world_state() -> bool:
 	SceneRouter.refresh_radio_status()
 	EventBus.emit_load_completed(SAVE_PATH)
 	EventBus.emit_prompt_changed("Prototype state loaded from %s." % SAVE_PATH)
+	EventBus.emit_event_logged("World state restored from local tape.", "system")
 	return true

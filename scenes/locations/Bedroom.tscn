@@ -6,6 +6,24 @@
 [node name="Bedroom" type="PanelContainer"]
 custom_minimum_size = Vector2(0, 200)
 
+[node name="Background" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 0.0
+offset_bottom = 0.0
+color = Color(0.18, 0.14, 0.18, 1)
+
+[node name="WindowGlow" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 220.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -20.0
+color = Color(0.35, 0.44, 0.54, 0.16)
+
 [node name="MarginContainer" type="MarginContainer" parent="."]
 theme_override_constants/margin_left = 18
 theme_override_constants/margin_top = 18
@@ -13,13 +31,17 @@ theme_override_constants/margin_right = 18
 theme_override_constants/margin_bottom = 18
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+theme_override_constants/separation = 8
 
 [node name="Title" type="Label" parent="MarginContainer/VBoxContainer"]
-text = "Bedroom"
+text = "BEDROOM"
+
+[node name="Mood" type="Label" parent="MarginContainer/VBoxContainer"]
+text = "Dust, moonlight, and a single way back out."
 
 [node name="Description" type="Label" parent="MarginContainer/VBoxContainer"]
 autowrap_mode = 3
-text = "Greybox side route. The blocked player searches this room for the key, then escapes through the window and down the drainpipe."
+text = "The blocked player searches this room for the key, then escapes through the window and down the drainpipe."
 
 [node name="BedroomKey" type="Node" parent="."]
 script = ExtResource("1")

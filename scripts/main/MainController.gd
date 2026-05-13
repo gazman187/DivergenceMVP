@@ -18,12 +18,16 @@ const LOCATION_LABELS := {
 @onready var _key_label: Label = find_child("KeyLabel", true, false) as Label
 @onready var _shed_label: Label = find_child("ShedLabel", true, false) as Label
 @onready var _trigger_label: Label = find_child("TriggerLabel", true, false) as Label
+@onready var _key_holder_label: Label = find_child("KeyHolderLabel", true, false) as Label
+@onready var _link_label: Label = find_child("LinkLabel", true, false) as Label
+@onready var _reconverged_label: Label = find_child("ReconvergedLabel", true, false) as Label
 @onready var _reset_button: Button = find_child("ResetButton", true, false) as Button
 @onready var _save_button: Button = find_child("SaveButton", true, false) as Button
 @onready var _load_button: Button = find_child("LoadButton", true, false) as Button
 
 var _player_widgets: Dictionary = {}
 var _preview_nodes: Dictionary = {}
+var _last_locations: Dictionary = {}
 
 
 func _ready() -> void:
@@ -41,6 +45,7 @@ func _cache_player_widgets() -> void:
 		GameState.PLAYER_1_ID: {
 			"location": find_child("Player1LocationLabel", true, false),
 			"inventory": find_child("Player1InventoryLabel", true, false),
+			"status": find_child("Player1StatusLabel", true, false),
 			"preview": find_child("Player1Preview", true, false),
 			"hallway": find_child("P1HallwayButton", true, false),
 			"cross": find_child("P1CrossButton", true, false),
@@ -54,6 +59,7 @@ func _cache_player_widgets() -> void:
 		GameState.PLAYER_2_ID: {
 			"location": find_child("Player2LocationLabel", true, false),
 			"inventory": find_child("Player2InventoryLabel", true, false),
+			"status": find_child("Player2StatusLabel", true, false),
 			"preview": find_child("Player2Preview", true, false),
 			"hallway": find_child("P2HallwayButton", true, false),
 			"cross": find_child("P2CrossButton", true, false),
@@ -113,6 +119,13 @@ func _refresh_view() -> void:
 	_key_label.text = "Bedroom Key Taken: %s" % _format_bool(GameState.bedroom_key_taken)
 	_shed_label.text = "Shed Unlocked: %s" % _format_bool(GameState.shed_unlocked)
 	_trigger_label.text = "Collapse Triggered By: %s" % _format_trigger_name()
+	_key_holder_label.text = "Key Holder: %s" % _key_holder_text()
+	_link_label.text = "Radio Link: %s" % VoiceProximityManager.calculate_status(
+		GameState.player_1_location,
+		GameState.player_2_location,
+		GameState.floor_collapsed
+	)
+	_reconverged_label.text = "Group State: %s" % _group_state_text()
 
 	for player_id in PLAYER_IDS:
 		_refresh_player_panel(player_id)
@@ -125,6 +138,7 @@ func _refresh_player_panel(player_id: String) -> void:
 
 	(widgets["location"] as Label).text = "Location: %s" % _pretty_location(location)
 	(widgets["inventory"] as Label).text = "Inventory: %s" % _pretty_inventory(inventory)
+	(widgets["status"] as Label).text = "Status: %s" % _player_status_text(player_id)
 
 	_update_preview(player_id, location)
 	_update_button_states(player_id, location)
@@ -144,6 +158,14 @@ func _update_preview(player_id: String, location: String) -> void:
 	var preview := packed_scene.instantiate()
 	preview_holder.add_child(preview)
 	_preview_nodes[player_id] = preview
+
+	var previous_location := str(_last_locations.get(player_id, ""))
+	if previous_location != location:
+		preview.modulate = Color(1, 1, 1, 0)
+		var tween := create_tween()
+		tween.tween_property(preview, "modulate", Color(1, 1, 1, 1), 0.24)
+
+	_last_locations[player_id] = location
 
 
 func _update_button_states(player_id: String, location: String) -> void:
@@ -253,3 +275,55 @@ func _pretty_inventory(inventory: Array[String]) -> String:
 		display_items.append(item.replace("_", " ").capitalize())
 
 	return ", ".join(display_items)
+
+
+func _key_holder_text() -> String:
+	if GameState.player_has_item(GameState.PLAYER_1_ID, "bedroom_key"):
+		return "Player 1"
+
+	if GameState.player_has_item(GameState.PLAYER_2_ID, "bedroom_key"):
+		return "Player 2"
+
+	return "Nobody"
+
+
+func _group_state_text() -> String:
+	if GameState.player_1_location == GameState.player_2_location:
+		if not GameState.floor_collapsed:
+			return "Together Upstairs"
+
+		if GameState.player_1_location == "Outside":
+			return "Reconverged Outside"
+
+		return "Reconverged at %s" % _pretty_location(GameState.player_1_location)
+
+	return "Separated"
+
+
+func _player_status_text(player_id: String) -> String:
+	var location := GameState.get_player_location(player_id)
+	var has_key := GameState.player_has_item(player_id, "bedroom_key")
+
+	if has_key and location == "Outside":
+		return "Key carrier outside"
+
+	if has_key:
+		return "Carrying bedroom key"
+
+	match location:
+		"UpstairsRoom":
+			return "Waiting upstairs"
+		"UpstairsHallway":
+			return "Testing weak floor"
+		"Bedroom":
+			return "Cut off upstairs"
+		"Downstairs":
+			return "Routed below collapse"
+		"Outside":
+			return "At reconvergence point"
+		"WoodsEdge":
+			return "Range testing at tree line"
+		"Shed":
+			return "Inside optional shed"
+		_:
+			return "Status unknown"

@@ -3,6 +3,7 @@ class_name EventBus
 
 signal state_changed
 signal prompt_changed(text: String)
+signal event_logged(text: String, tone: String)
 signal radio_status_changed(status: String)
 signal player_routed(player_id: String, location: String)
 signal inventory_changed(player_id: String, inventory: Array[String])
@@ -20,6 +21,10 @@ func emit_state_changed() -> void:
 
 func emit_prompt_changed(text: String) -> void:
 	prompt_changed.emit(text)
+
+
+func emit_event_logged(text: String, tone: String = "system") -> void:
+	event_logged.emit(text, tone)
 
 
 func emit_radio_status_changed(status: String) -> void:

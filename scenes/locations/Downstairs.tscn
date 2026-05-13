@@ -5,6 +5,24 @@
 [node name="Downstairs" type="PanelContainer"]
 custom_minimum_size = Vector2(0, 200)
 
+[node name="Background" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 0.0
+offset_bottom = 0.0
+color = Color(0.11, 0.11, 0.12, 1)
+
+[node name="DustWake" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 90.0
+offset_right = -8.0
+offset_bottom = -22.0
+color = Color(0.5, 0.48, 0.42, 0.08)
+
 [node name="MarginContainer" type="MarginContainer" parent="."]
 theme_override_constants/margin_left = 18
 theme_override_constants/margin_top = 18
@@ -12,13 +30,17 @@ theme_override_constants/margin_right = 18
 theme_override_constants/margin_bottom = 18
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+theme_override_constants/separation = 8
 
 [node name="Title" type="Label" parent="MarginContainer/VBoxContainer"]
-text = "Downstairs"
+text = "DOWNSTAIRS"
+
+[node name="Mood" type="Label" parent="MarginContainer/VBoxContainer"]
+text = "Dust bloom. Ringing ears. Impact still in the walls."
 
 [node name="Description" type="Label" parent="MarginContainer/VBoxContainer"]
 autowrap_mode = 3
-text = "Greybox fall destination. The collapse drops the triggering player here before they can exit to reconverge outside."
+text = "The collapse drops the triggering player here before they can exit to reconverge outside."
 
 [node name="OutsideDoor" type="Node" parent="."]
 script = ExtResource("1")
