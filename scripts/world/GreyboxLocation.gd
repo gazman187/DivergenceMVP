@@ -2,6 +2,8 @@ extends Node2D
 class_name GreyboxLocation
 
 @export var location_id: String = ""
+@export var camera_zoom: float = 1.0
+@export var post_collapse_camera_zoom: float = 1.0
 
 
 func _ready() -> void:
@@ -13,9 +15,33 @@ func get_spawn_position(player_id: String) -> Vector2:
 	var marker_name: String = "Player1Spawn" if player_id == GameState.PLAYER_1_ID else "Player2Spawn"
 	var marker: Marker2D = get_node_or_null(marker_name) as Marker2D
 	if marker != null:
-		return marker.global_position
+		return position + marker.position
 
-	return global_position
+	return position
+
+
+func get_camera_focus_position() -> Vector2:
+	var marker_name: String = "PostCollapseCameraFocus" if GameState.floor_collapsed else "CameraFocus"
+	var marker: Marker2D = get_node_or_null(marker_name) as Marker2D
+	if marker == null and GameState.floor_collapsed:
+		marker = get_node_or_null("CameraFocus") as Marker2D
+
+	if marker != null:
+		return position + marker.position
+
+	var player_one_marker: Marker2D = get_node_or_null("Player1Spawn") as Marker2D
+	var player_two_marker: Marker2D = get_node_or_null("Player2Spawn") as Marker2D
+	if player_one_marker != null and player_two_marker != null:
+		return position + ((player_one_marker.position + player_two_marker.position) * 0.5)
+
+	return position
+
+
+func get_camera_zoom_value() -> float:
+	if GameState.floor_collapsed and post_collapse_camera_zoom > 0.0:
+		return post_collapse_camera_zoom
+
+	return camera_zoom
 
 
 func _refresh_visual_state() -> void:

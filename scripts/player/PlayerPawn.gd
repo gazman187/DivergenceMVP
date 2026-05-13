@@ -53,7 +53,7 @@ func set_selected(selected: bool) -> void:
 
 
 func sync_to_position(world_position: Vector2) -> void:
-	global_position = world_position
+	position = world_position
 	velocity = Vector2.ZERO
 	_refresh_current_zone()
 

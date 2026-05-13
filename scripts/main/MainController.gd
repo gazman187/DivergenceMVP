@@ -2,6 +2,9 @@ extends Control
 class_name MainController
 
 const PLAYER_IDS: Array[String] = [GameState.PLAYER_1_ID, GameState.PLAYER_2_ID]
+const WORLD_BOUNDS: Rect2 = Rect2(24.0, 18.0, 1048.0, 746.0)
+const CAMERA_LERP_SPEED: float = 5.6
+const ATMOSPHERE_LERP_SPEED: float = 4.2
 const LOCATION_LABELS := {
 	"UpstairsRoom": "Upstairs Room",
 	"UpstairsHallway": "Upstairs Hallway",
@@ -16,7 +19,17 @@ const LOCATION_LABELS := {
 @onready var _save_manager: SaveManager = $SaveManager
 @onready var _debug_toggle_button: Button = $DebugToggleButton
 @onready var _debug_panel: PanelContainer = $DebugPanel
+@onready var _world_frame: PanelContainer = $WorldFrame
+@onready var _world_camera_rig: Node2D = $WorldFrame/WorldCameraRig
+@onready var _world_layer: Node2D = $WorldFrame/WorldCameraRig/WorldLayer
 @onready var _world_fade: ColorRect = $WorldFade
+@onready var _world_state_tint: ColorRect = $WorldFrame/WorldStateTint
+@onready var _world_relief_glow: ColorRect = $WorldFrame/WorldReliefGlow
+@onready var _world_top_shade: ColorRect = $WorldFrame/WorldTopShade
+@onready var _world_bottom_shade: ColorRect = $WorldFrame/WorldBottomShade
+@onready var _world_left_shade: ColorRect = $WorldFrame/WorldLeftShade
+@onready var _world_right_shade: ColorRect = $WorldFrame/WorldRightShade
+@onready var _world_grain_band: ColorRect = $WorldFrame/WorldGrainBand
 @onready var _active_player_value: Label = $WorldHUD/Panel/Margin/VBox/ActivePlayerValue
 @onready var _active_location_value: Label = $WorldHUD/Panel/Margin/VBox/ActiveLocationValue
 @onready var _interaction_hint_value: Label = $WorldHUD/Panel/Margin/VBox/InteractionHintValue
@@ -37,6 +50,8 @@ var _location_nodes: Dictionary = {}
 var _last_locations: Dictionary = {}
 var _active_player_id: String = GameState.PLAYER_1_ID
 var _has_world_state: bool = false
+var _camera_target_position: Vector2 = Vector2.ZERO
+var _camera_target_scale: Vector2 = Vector2.ONE
 
 
 func _ready() -> void:
@@ -51,6 +66,12 @@ func _ready() -> void:
 	_debug_toggle_button.pressed.connect(_toggle_debug_panel)
 	_set_active_player(GameState.PLAYER_1_ID)
 	_session_manager.initialize_local_session()
+	_initialize_world_presentation()
+	set_process(true)
+
+
+func _process(delta: float) -> void:
+	_update_camera_and_atmosphere(delta)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -77,18 +98,18 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _cache_world_nodes() -> void:
 	_player_pawns = {
-		GameState.PLAYER_1_ID: $WorldLayer/Player1Pawn,
-		GameState.PLAYER_2_ID: $WorldLayer/Player2Pawn
+		GameState.PLAYER_1_ID: $WorldFrame/WorldCameraRig/WorldLayer/Player1Pawn,
+		GameState.PLAYER_2_ID: $WorldFrame/WorldCameraRig/WorldLayer/Player2Pawn
 	}
 
 	_location_nodes = {
-		"UpstairsRoom": $WorldLayer/UpstairsRoom,
-		"UpstairsHallway": $WorldLayer/UpstairsHallway,
-		"Bedroom": $WorldLayer/Bedroom,
-		"Downstairs": $WorldLayer/Downstairs,
-		"Outside": $WorldLayer/Outside,
-		"WoodsEdge": $WorldLayer/WoodsEdge,
-		"Shed": $WorldLayer/Shed
+		"UpstairsRoom": $WorldFrame/WorldCameraRig/WorldLayer/UpstairsRoom,
+		"UpstairsHallway": $WorldFrame/WorldCameraRig/WorldLayer/UpstairsHallway,
+		"Bedroom": $WorldFrame/WorldCameraRig/WorldLayer/Bedroom,
+		"Downstairs": $WorldFrame/WorldCameraRig/WorldLayer/Downstairs,
+		"Outside": $WorldFrame/WorldCameraRig/WorldLayer/Outside,
+		"WoodsEdge": $WorldFrame/WorldCameraRig/WorldLayer/WoodsEdge,
+		"Shed": $WorldFrame/WorldCameraRig/WorldLayer/Shed
 	}
 
 
@@ -309,6 +330,213 @@ func _update_world_hud() -> void:
 	_active_player_value.text = "Active Player: %s" % active_name
 	_active_location_value.text = "Location: %s" % active_location
 	_interaction_hint_value.text = prompt_text if prompt_text != "" else "WASD or arrows to move. Press E near a highlighted zone. Tab switches players."
+
+
+func _initialize_world_presentation() -> void:
+	_camera_target_position = _world_camera_rig.position
+	_camera_target_scale = _world_camera_rig.scale
+	_world_state_tint.color = Color(0.14, 0.18, 0.22, 0.0)
+	_world_relief_glow.color = Color(0.36, 0.42, 0.38, 0.0)
+	_world_top_shade.color = Color(0.01, 0.02, 0.03, 0.32)
+	_world_bottom_shade.color = Color(0.01, 0.02, 0.03, 0.36)
+	_world_left_shade.color = Color(0.01, 0.02, 0.03, 0.26)
+	_world_right_shade.color = Color(0.01, 0.02, 0.03, 0.30)
+	_world_grain_band.color = Color(0.68, 0.72, 0.76, 0.03)
+
+
+func _update_camera_and_atmosphere(delta: float) -> void:
+	var active_location: String = GameState.get_player_location(_active_player_id)
+	var active_location_node: GreyboxLocation = _location_nodes[active_location] as GreyboxLocation
+	var frame_size: Vector2 = _world_frame.size
+	var focus_position: Vector2 = _resolve_focus_position(active_location, active_location_node)
+	var zoom_value: float = _resolve_zoom_value(active_location_node)
+	var target_position: Vector2 = (frame_size * 0.5) - (focus_position * zoom_value)
+	_camera_target_position = _clamp_camera_position(target_position, zoom_value, frame_size)
+	_camera_target_scale = Vector2.ONE * zoom_value
+
+	var camera_weight: float = clampf(delta * CAMERA_LERP_SPEED, 0.0, 1.0)
+	_world_camera_rig.position = _world_camera_rig.position.lerp(_camera_target_position, camera_weight)
+	_world_camera_rig.scale = _world_camera_rig.scale.lerp(_camera_target_scale, camera_weight)
+
+	_update_spatial_presence(active_location, delta)
+	_update_frame_atmosphere(active_location, delta)
+
+
+func _resolve_focus_position(active_location: String, active_location_node: GreyboxLocation) -> Vector2:
+	var active_pawn: PlayerPawn = _player_pawns[_active_player_id] as PlayerPawn
+	if active_pawn == null:
+		return WORLD_BOUNDS.get_center()
+
+	var active_point: Vector2 = _world_point_for_node(active_pawn)
+	if active_location_node == null:
+		return active_point
+
+	var location_point: Vector2 = _world_layer.position + active_location_node.get_camera_focus_position()
+	var other_player_id: String = GameState.get_other_player_id(_active_player_id)
+	var other_location: String = GameState.get_player_location(other_player_id)
+	if other_location == active_location:
+		var other_pawn: PlayerPawn = _player_pawns[other_player_id] as PlayerPawn
+		if other_pawn != null:
+			var midpoint: Vector2 = (active_point + _world_point_for_node(other_pawn)) * 0.5
+			return midpoint.lerp(location_point, 0.22)
+
+	return active_point.lerp(location_point, 0.34)
+
+
+func _resolve_zoom_value(active_location_node: GreyboxLocation) -> float:
+	var zoom_value: float = 1.0
+	if active_location_node != null:
+		zoom_value = active_location_node.get_camera_zoom_value()
+
+	var other_player_id: String = GameState.get_other_player_id(_active_player_id)
+	if GameState.get_player_location(other_player_id) == GameState.get_player_location(_active_player_id):
+		zoom_value = maxf(0.88, zoom_value - 0.12)
+
+	return zoom_value
+
+
+func _clamp_camera_position(target_position: Vector2, zoom_value: float, frame_size: Vector2) -> Vector2:
+	var min_x: float = frame_size.x - ((WORLD_BOUNDS.position.x + WORLD_BOUNDS.size.x) * zoom_value)
+	var max_x: float = -(WORLD_BOUNDS.position.x * zoom_value)
+	var min_y: float = frame_size.y - ((WORLD_BOUNDS.position.y + WORLD_BOUNDS.size.y) * zoom_value)
+	var max_y: float = -(WORLD_BOUNDS.position.y * zoom_value)
+
+	var clamped_x: float = target_position.x
+	var clamped_y: float = target_position.y
+	if min_x <= max_x:
+		clamped_x = clampf(target_position.x, min_x, max_x)
+	else:
+		clamped_x = (min_x + max_x) * 0.5
+
+	if min_y <= max_y:
+		clamped_y = clampf(target_position.y, min_y, max_y)
+	else:
+		clamped_y = (min_y + max_y) * 0.5
+
+	return Vector2(clamped_x, clamped_y)
+
+
+func _update_spatial_presence(active_location: String, delta: float) -> void:
+	var other_player_id: String = GameState.get_other_player_id(_active_player_id)
+	var other_location: String = GameState.get_player_location(other_player_id)
+	var together: bool = active_location == other_location
+	var presence_weight: float = clampf(delta * ATMOSPHERE_LERP_SPEED, 0.0, 1.0)
+
+	for location_key in _location_nodes.keys():
+		var location_id: String = str(location_key)
+		var location_node: GreyboxLocation = _location_nodes[location_id] as GreyboxLocation
+		if location_node == null:
+			continue
+
+		var target_modulate: Color = _location_presence_color(location_id, active_location, other_location, together)
+		location_node.modulate = location_node.modulate.lerp(target_modulate, presence_weight)
+
+	for player_id in PLAYER_IDS:
+		var pawn: PlayerPawn = _player_pawns[player_id] as PlayerPawn
+		if pawn == null:
+			continue
+
+		var pawn_color: Color = _pawn_presence_color(player_id, active_location, together)
+		pawn.modulate = pawn.modulate.lerp(pawn_color, presence_weight)
+
+
+func _location_presence_color(location_id: String, active_location: String, other_location: String, together: bool) -> Color:
+	if location_id == active_location:
+		return Color(1.0, 1.0, 1.0, 1.0)
+
+	if together and location_id == other_location:
+		return Color(0.98, 0.99, 1.0, 0.94)
+
+	if location_id == other_location:
+		return Color(0.62, 0.66, 0.72, 0.56)
+
+	if _is_related_location(active_location, location_id):
+		return Color(0.46, 0.5, 0.56, 0.38)
+
+	return Color(0.22, 0.24, 0.28, 0.22)
+
+
+func _pawn_presence_color(player_id: String, active_location: String, together: bool) -> Color:
+	if player_id == _active_player_id:
+		return Color(1.0, 1.0, 1.0, 1.0)
+
+	var location: String = GameState.get_player_location(player_id)
+	if together and location == active_location:
+		return Color(0.9, 0.92, 0.96, 0.9)
+
+	if location == active_location:
+		return Color(0.72, 0.78, 0.86, 0.68)
+
+	return Color(0.42, 0.46, 0.52, 0.3)
+
+
+func _update_frame_atmosphere(active_location: String, delta: float) -> void:
+	var together: bool = GameState.player_1_location == GameState.player_2_location
+	var tint_target: Color = Color(0.14, 0.18, 0.22, 0.04)
+	var relief_target: Color = Color(0.36, 0.42, 0.38, 0.04)
+	var shade_alpha: float = 0.28
+	var grain_alpha: float = 0.03
+
+	if together and active_location == "Outside":
+		tint_target = Color(0.18, 0.22, 0.24, 0.03)
+		relief_target = Color(0.44, 0.5, 0.46, 0.14)
+		shade_alpha = 0.18
+		grain_alpha = 0.02
+	elif together:
+		tint_target = Color(0.22, 0.18, 0.14, 0.05)
+		relief_target = Color(0.46, 0.38, 0.26, 0.08)
+		shade_alpha = 0.24
+	elif active_location == "Bedroom":
+		tint_target = Color(0.12, 0.16, 0.24, 0.10)
+		relief_target = Color(0.24, 0.3, 0.42, 0.04)
+		shade_alpha = 0.38
+		grain_alpha = 0.035
+	elif active_location == "Downstairs" or active_location == "UpstairsHallway":
+		tint_target = Color(0.1, 0.14, 0.2, 0.11)
+		relief_target = Color(0.18, 0.24, 0.28, 0.03)
+		shade_alpha = 0.4
+		grain_alpha = 0.036
+	elif active_location == "WoodsEdge":
+		tint_target = Color(0.08, 0.14, 0.12, 0.08)
+		relief_target = Color(0.18, 0.3, 0.24, 0.05)
+		shade_alpha = 0.34
+	else:
+		tint_target = Color(0.12, 0.17, 0.22, 0.09)
+		relief_target = Color(0.24, 0.3, 0.34, 0.04)
+		shade_alpha = 0.34
+
+	var weight: float = clampf(delta * ATMOSPHERE_LERP_SPEED, 0.0, 1.0)
+	_world_state_tint.color = _world_state_tint.color.lerp(tint_target, weight)
+	_world_relief_glow.color = _world_relief_glow.color.lerp(relief_target, weight)
+	_world_top_shade.color = _world_top_shade.color.lerp(Color(0.01, 0.02, 0.03, shade_alpha + 0.06), weight)
+	_world_bottom_shade.color = _world_bottom_shade.color.lerp(Color(0.01, 0.02, 0.03, shade_alpha + 0.1), weight)
+	_world_left_shade.color = _world_left_shade.color.lerp(Color(0.01, 0.02, 0.03, shade_alpha), weight)
+	_world_right_shade.color = _world_right_shade.color.lerp(Color(0.01, 0.02, 0.03, shade_alpha + 0.04), weight)
+	_world_grain_band.color = _world_grain_band.color.lerp(Color(0.68, 0.72, 0.76, grain_alpha), weight)
+
+
+func _world_point_for_node(node: Node2D) -> Vector2:
+	return _world_layer.position + node.position
+
+
+func _is_related_location(source: String, candidate: String) -> bool:
+	match source:
+		"UpstairsRoom":
+			return candidate == "UpstairsHallway" or candidate == "Bedroom"
+		"UpstairsHallway":
+			return candidate == "UpstairsRoom" or candidate == "Bedroom" or candidate == "Downstairs"
+		"Bedroom":
+			return candidate == "UpstairsRoom" or candidate == "UpstairsHallway" or candidate == "Outside"
+		"Downstairs":
+			return candidate == "UpstairsHallway" or candidate == "Outside"
+		"Outside":
+			return candidate == "Downstairs" or candidate == "WoodsEdge" or candidate == "Shed" or candidate == "Bedroom"
+		"WoodsEdge":
+			return candidate == "Outside"
+		"Shed":
+			return candidate == "Outside"
+		_:
+			return false
 
 
 func _toggle_debug_panel() -> void:
