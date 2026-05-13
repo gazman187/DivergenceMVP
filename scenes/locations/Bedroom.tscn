@@ -1,0 +1,32 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/ItemPickup.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/world/Door.gd" id="2"]
+
+[node name="Bedroom" type="PanelContainer"]
+custom_minimum_size = Vector2(0, 200)
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+
+[node name="Title" type="Label" parent="MarginContainer/VBoxContainer"]
+text = "Bedroom"
+
+[node name="Description" type="Label" parent="MarginContainer/VBoxContainer"]
+autowrap_mode = 3
+text = "Greybox side route. The blocked player searches this room for the key, then escapes through the window and down the drainpipe."
+
+[node name="BedroomKey" type="Node" parent="."]
+script = ExtResource("1")
+interaction_label = "Take bedroom key"
+item_id = "bedroom_key"
+
+[node name="WindowExit" type="Node" parent="."]
+script = ExtResource("2")
+interaction_label = "Escape via window and drainpipe"
+target_location = "Outside"
