@@ -214,12 +214,12 @@ func leave_shed(player_id: String) -> bool:
 
 
 func refresh_radio_status() -> void:
-	var status := VoiceProximityManager.calculate_status(
+	var profile := VoiceProximityManager.calculate_profile(
 		GameState.player_1_location,
 		GameState.player_2_location,
 		GameState.floor_collapsed
 	)
-	EventBus.emit_radio_status_changed(status)
+	EventBus.emit_radio_target_changed(profile)
 
 
 func _emit_reconvergence_if_needed() -> void:

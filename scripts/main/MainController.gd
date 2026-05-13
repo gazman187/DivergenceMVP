@@ -115,16 +115,20 @@ func _on_load_pressed() -> void:
 
 
 func _refresh_view() -> void:
+	var radio_profile := VoiceProximityManager.calculate_profile(
+		GameState.player_1_location,
+		GameState.player_2_location,
+		GameState.floor_collapsed
+	)
 	_collapse_label.text = "Floor Collapsed: %s" % _format_bool(GameState.floor_collapsed)
 	_key_label.text = "Bedroom Key Taken: %s" % _format_bool(GameState.bedroom_key_taken)
 	_shed_label.text = "Shed Unlocked: %s" % _format_bool(GameState.shed_unlocked)
 	_trigger_label.text = "Collapse Triggered By: %s" % _format_trigger_name()
 	_key_holder_label.text = "Key Holder: %s" % _key_holder_text()
-	_link_label.text = "Radio Link: %s" % VoiceProximityManager.calculate_status(
-		GameState.player_1_location,
-		GameState.player_2_location,
-		GameState.floor_collapsed
-	)
+	_link_label.text = "Radio Link: %s / %d%%" % [
+		str(radio_profile.get("state", "Lost")),
+		int(round(float(radio_profile.get("strength", 0.0)) * 100.0))
+	]
 	_reconverged_label.text = "Group State: %s" % _group_state_text()
 
 	for player_id in PLAYER_IDS:

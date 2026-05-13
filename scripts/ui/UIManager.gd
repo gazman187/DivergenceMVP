@@ -9,20 +9,20 @@ const RADIO_STYLES := {
 		"flavor": "Voices carry cleanly through the house.",
 		"static": 0.04
 	},
-	"Weak": {
+	"Reduced": {
 		"bars": 3,
 		"color": Color(0.84, 0.79, 0.48, 1.0),
 		"flavor": "The channel thins and warms with static.",
 		"static": 0.12
 	},
-	"Broken": {
-		"bars": 2,
+	"Faint": {
+		"bars": 1,
 		"color": Color(0.88, 0.55, 0.45, 1.0),
-		"flavor": "Fragments push through cracked interference.",
+		"flavor": "Only a faint trace survives the distance.",
 		"static": 0.22
 	},
 	"Lost": {
-		"bars": 1,
+		"bars": 0,
 		"color": Color(0.66, 0.68, 0.74, 1.0),
 		"flavor": "Only static and distance answer back.",
 		"static": 0.34
@@ -34,7 +34,8 @@ const RADIO_STYLES := {
 @onready var _event_feed_scroll: ScrollContainer = $EventFeed/MarginContainer/VBoxContainer/FeedScroll
 @onready var _event_feed_label: Label = $EventFeed/MarginContainer/VBoxContainer/FeedScroll/FeedContent/EventFeedEntries
 @onready var _radio_panel: PanelContainer = $RadioStatus
-@onready var _radio_value: Label = $RadioStatus/MarginContainer/VBoxContainer/StatusValue
+@onready var _radio_value: Label = $RadioStatus/MarginContainer/VBoxContainer/StatusRow/StatusValue
+@onready var _radio_connection_value: Label = $RadioStatus/MarginContainer/VBoxContainer/StatusRow/ConnectionValue
 @onready var _radio_flavor: Label = $RadioStatus/MarginContainer/VBoxContainer/FlavorText
 @onready var _radio_static_line: ColorRect = $RadioStatus/StaticLine
 @onready var _radio_glow: ColorRect = $RadioStatus/SignalGlow
@@ -49,6 +50,7 @@ var _radio_status: String = "Clear"
 var _event_feed_lines: Array[String] = []
 var _radio_bars: Array[ColorRect] = []
 var _collapse_running: bool = false
+var _connection_strength: float = 1.0
 
 
 func _ready() -> void:
@@ -56,6 +58,7 @@ func _ready() -> void:
 	EventBus.prompt_changed.connect(_on_prompt_changed)
 	EventBus.event_logged.connect(_on_event_logged)
 	EventBus.radio_status_changed.connect(_on_radio_status_changed)
+	EventBus.radio_connection_changed.connect(_on_radio_connection_changed)
 	EventBus.cinematic_requested.connect(_on_cinematic_requested)
 
 	_radio_bars = [
@@ -77,7 +80,7 @@ func _process(_delta: float) -> void:
 	var style: Dictionary = RADIO_STYLES.get(_radio_status, RADIO_STYLES["Lost"])
 	_radio_static_line.modulate.a = float(style["static"]) + randf_range(0.0, 0.08)
 	_radio_static_line.position.y = 22.0 + randf_range(-2.0, 2.0)
-	_radio_glow.modulate.a = 0.08 + randf_range(0.0, 0.06)
+	_radio_glow.modulate.a = (0.05 + (_connection_strength * 0.10)) + randf_range(0.0, 0.04)
 
 
 func _on_prompt_changed(text: String) -> void:
@@ -90,11 +93,19 @@ func _on_event_logged(text: String, tone: String) -> void:
 
 
 func _on_radio_status_changed(status: String) -> void:
-	var previous_status := _radio_status
-	_apply_radio_status(status, previous_status != status)
+	_apply_radio_status(status, _radio_status != status)
 
-	if previous_status != status:
-		_append_event(_signal_transition_text(status), "signal")
+
+func _on_radio_connection_changed(snapshot: Dictionary) -> void:
+	_connection_strength = float(snapshot.get("strength", 0.0))
+	var connection_percent := int(round(_connection_strength * 100.0))
+	_radio_connection_value.text = "%d%%" % connection_percent
+	_radio_flavor.text = str(snapshot.get("flavor", ""))
+	_radio_panel.modulate.a = 0.72 + (_connection_strength * 0.28)
+	_radio_connection_value.modulate = _radio_value.modulate
+
+	var line_width := lerpf(48.0, 264.0, clampf(_connection_strength, 0.0, 1.0))
+	_radio_static_line.size.x = line_width
 
 
 func _on_cinematic_requested(scene_path: String) -> void:
@@ -141,7 +152,9 @@ func _apply_radio_status(status: String, animate: bool) -> void:
 
 	_radio_value.text = status.to_upper()
 	_radio_value.modulate = accent
-	_radio_flavor.text = str(style["flavor"])
+	_radio_connection_value.modulate = accent
+	if _radio_flavor.text == "":
+		_radio_flavor.text = str(style["flavor"])
 	_radio_flavor.modulate = accent.lerp(Color(1, 1, 1, 1), 0.45)
 	_radio_glow.color = accent
 
@@ -187,21 +200,6 @@ func _tone_prefix(tone: String) -> String:
 			return "TRACE  //"
 		_:
 			return "SYSTEM //"
-
-
-func _signal_transition_text(status: String) -> String:
-	match status:
-		"Clear":
-			return "Signal clear. Both voices cut through again."
-		"Weak":
-			return "Signal weakening..."
-		"Broken":
-			return "Radio link breaking into fragments."
-		"Lost":
-			return "Signal lost in static."
-		_:
-			return "Signal shifting."
-
 
 func _pulse_prompt() -> void:
 	var tween := create_tween()

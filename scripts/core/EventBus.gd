@@ -3,7 +3,9 @@ extends Node
 signal state_changed
 signal prompt_changed(text: String)
 signal event_logged(text: String, tone: String)
+signal radio_target_changed(profile: Dictionary)
 signal radio_status_changed(status: String)
+signal radio_connection_changed(snapshot: Dictionary)
 signal player_routed(player_id: String, location: String)
 signal inventory_changed(player_id: String, inventory: Array[String])
 signal collapse_triggered(player_id: String)
@@ -26,8 +28,16 @@ func emit_event_logged(text: String, tone: String = "system") -> void:
 	event_logged.emit(text, tone)
 
 
+func emit_radio_target_changed(profile: Dictionary) -> void:
+	radio_target_changed.emit(profile)
+
+
 func emit_radio_status_changed(status: String) -> void:
 	radio_status_changed.emit(status)
+
+
+func emit_radio_connection_changed(snapshot: Dictionary) -> void:
+	radio_connection_changed.emit(snapshot)
 
 
 func emit_player_routed(player_id: String, location: String) -> void:
