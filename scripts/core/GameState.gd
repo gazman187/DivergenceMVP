@@ -1,5 +1,4 @@
 extends Node
-class_name GameState
 
 const PLAYER_1_ID := "player_1"
 const PLAYER_2_ID := "player_2"
@@ -209,10 +208,10 @@ func _sync_public_state() -> void:
 func _emit_state_changed() -> void:
 	var bus := get_node_or_null("/root/EventBus")
 	if bus != null:
-		EventBus.emit_state_changed()
+		bus.emit_state_changed()
 
 
 func _emit_inventory_changed(player_id: String) -> void:
 	var bus := get_node_or_null("/root/EventBus")
 	if bus != null:
-		EventBus.emit_inventory_changed(player_id, get_player_inventory(player_id))
+		bus.emit_inventory_changed(player_id, get_player_inventory(player_id))

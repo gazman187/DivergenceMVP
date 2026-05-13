@@ -1,5 +1,4 @@
 extends Node
-class_name SceneRouter
 
 const LOCATION_SCENES := {
 	"UpstairsRoom": "res://scenes/locations/UpstairsRoom.tscn",

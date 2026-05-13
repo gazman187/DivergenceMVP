@@ -1,5 +1,4 @@
 extends Node
-class_name EventBus
 
 signal state_changed
 signal prompt_changed(text: String)
