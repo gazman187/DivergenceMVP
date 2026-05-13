@@ -1,0 +1,21 @@
+[gd_scene format=3]
+
+[node name="RadioStatus" type="PanelContainer"]
+offset_left = 1324.0
+offset_top = 24.0
+offset_right = 1576.0
+offset_bottom = 116.0
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 12
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+
+[node name="StatusTitle" type="Label" parent="MarginContainer/VBoxContainer"]
+text = "Radio Signal"
+
+[node name="StatusValue" type="Label" parent="MarginContainer/VBoxContainer"]
+text = "Clear"
