@@ -53,6 +53,9 @@ var _event_feed_lines: Array[String] = []
 var _radio_bars: Array[ColorRect] = []
 var _collapse_running: bool = false
 var _connection_strength: float = 1.0
+var _silence_pressure: float = 0.20
+var _reunion_relief: float = 0.14
+var _occlusion: float = 0.10
 
 
 func _ready() -> void:
@@ -82,9 +85,9 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
 	var style: Dictionary = _radio_style_for_status(_radio_status)
-	_radio_static_line.modulate.a = float(style["static"]) + randf_range(0.0, 0.08)
+	_radio_static_line.modulate.a = float(style["static"]) + (_occlusion * 0.10) + randf_range(0.0, 0.08)
 	_radio_static_line.position.y = 22.0 + randf_range(-2.0, 2.0)
-	_radio_glow.modulate.a = (0.05 + (_connection_strength * 0.10)) + randf_range(0.0, 0.04)
+	_radio_glow.modulate.a = (0.04 + ((_connection_strength + _reunion_relief) * 0.10) - (_silence_pressure * 0.03)) + randf_range(0.0, 0.04)
 
 
 func _on_prompt_changed(text: String) -> void:
@@ -102,14 +105,18 @@ func _on_radio_status_changed(status: String) -> void:
 
 func _on_radio_connection_changed(snapshot: Dictionary) -> void:
 	_connection_strength = _snapshot_float(snapshot, "strength", 0.0)
+	_silence_pressure = _snapshot_float(snapshot, "silence_pressure", 0.20)
+	_reunion_relief = _snapshot_float(snapshot, "relief", 0.0)
+	_occlusion = _snapshot_float(snapshot, "occlusion", 0.10)
 	var connection_percent: int = int(round(_connection_strength * 100.0))
 	_radio_connection_value.text = "%d%%" % connection_percent
 	_radio_flavor.text = _snapshot_string(snapshot, "flavor", "")
-	_radio_panel.modulate.a = 0.72 + (_connection_strength * 0.28)
+	_radio_panel.modulate.a = 0.66 + ((_connection_strength + _reunion_relief) * 0.20)
 	_radio_connection_value.modulate = _radio_value.modulate
 
 	var line_width: float = lerpf(48.0, 264.0, clampf(_connection_strength, 0.0, 1.0))
 	_radio_static_line.size.x = line_width
+	_radio_static_line.modulate.a = 0.08 + (_occlusion * 0.20) + ((1.0 - _connection_strength) * 0.12)
 
 
 func _on_cinematic_requested(scene_path: String) -> void:
@@ -224,6 +231,8 @@ func _tone_prefix(tone: String) -> String:
 			return "RADIO  //"
 		"hope":
 			return "LINK   //"
+		"ambience":
+			return "HOUSE  //"
 		"movement":
 			return "TRACE  //"
 		_:

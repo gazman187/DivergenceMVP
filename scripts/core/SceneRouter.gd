@@ -104,6 +104,7 @@ func route_player_to_bedroom(player_id: String, forced_route: bool = false) -> b
 		_bedroom_scare_triggered = true
 		EventBus.emit_event_logged("The hanging light jerks hard on its cord and clicks dead.", "critical")
 		EventBus.emit_audio_requested("bedroom_fixture_snap")
+		EventBus.emit_audio_requested("fixture_debris_tap")
 	EventBus.emit_audio_requested("door_slam")
 	refresh_radio_status()
 	return true
@@ -123,6 +124,7 @@ func search_bedroom_for_key(player_id: String) -> bool:
 	EventBus.emit_event_logged("%s finds the bedroom key in the dark bedroom." % GameState.get_player_display_name(player_id), "system")
 	EventBus.emit_event_logged("Night air leaks in through the window frame.", "system")
 	EventBus.emit_audio_requested("pickup_key")
+	EventBus.emit_audio_requested("window_air_leak")
 	refresh_radio_status()
 	return true
 
@@ -138,6 +140,7 @@ func escape_bedroom_via_window(player_id: String) -> bool:
 	EventBus.emit_event_logged("%s escapes through the bedroom window and down the drainpipe." % GameState.get_player_display_name(player_id), "movement")
 	EventBus.emit_event_logged("The yard opens wide and cold beyond the house.", "hope")
 	EventBus.emit_audio_requested("window_escape")
+	EventBus.emit_audio_requested("yard_wind_open")
 	refresh_radio_status()
 	_emit_reconvergence_if_needed()
 	return true
@@ -154,6 +157,7 @@ func move_downstairs_to_outside(player_id: String) -> bool:
 	EventBus.emit_event_logged("%s stumbles out of the lower floor and reaches the yard." % GameState.get_player_display_name(player_id), "movement")
 	EventBus.emit_event_logged("Outside feels wider, colder, and suddenly easier to breathe in.", "hope")
 	EventBus.emit_audio_requested("outside_door")
+	EventBus.emit_audio_requested("yard_wind_open")
 	refresh_radio_status()
 	_emit_reconvergence_if_needed()
 	return true
@@ -276,6 +280,9 @@ func _emit_reconvergence_if_needed() -> void:
 		"The radio steadies. Both players reconverge at %s." % _pretty_location(signature).to_lower(),
 		"hope"
 	)
+	EventBus.emit_audio_requested("reunion_breath")
+	if signature == "Outside":
+		EventBus.emit_audio_requested("outside_space_release")
 
 
 func _pretty_location(location: String) -> String:
