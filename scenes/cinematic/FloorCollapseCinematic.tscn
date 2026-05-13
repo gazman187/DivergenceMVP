@@ -25,6 +25,27 @@ offset_right = 0.0
 offset_bottom = 0.0
 color = Color(0.95, 0.95, 0.95, 0.0)
 
+[node name="DustVeil" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 0.0
+offset_bottom = 0.0
+color = Color(0.42, 0.36, 0.3, 0.0)
+
+[node name="Fracture" type="ColorRect" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -4.0
+offset_top = -220.0
+offset_right = 4.0
+offset_bottom = 220.0
+rotation = 0.2
+color = Color(0.76, 0.68, 0.54, 0.0)
+
 [node name="CenterContainer" type="CenterContainer" parent="."]
 anchors_preset = 15
 anchor_right = 1.0
@@ -33,7 +54,7 @@ offset_right = 0.0
 offset_bottom = 0.0
 
 [node name="PanelContainer" type="PanelContainer" parent="CenterContainer"]
-custom_minimum_size = Vector2(460, 120)
+custom_minimum_size = Vector2(520, 132)
 
 [node name="MarginContainer" type="MarginContainer" parent="CenterContainer/PanelContainer"]
 theme_override_constants/margin_left = 24

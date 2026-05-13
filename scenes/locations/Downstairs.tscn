@@ -22,12 +22,33 @@ offset_right = 280.0
 offset_bottom = 220.0
 color = Color(0.1, 0.1, 0.12, 1)
 
+[node name="CeilingShadow" type="ColorRect" parent="."]
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 280.0
+offset_bottom = 44.0
+color = Color(0.02, 0.02, 0.03, 0.32)
+
+[node name="CollapsedEntryGlow" type="ColorRect" parent="."]
+offset_left = 34.0
+offset_top = 10.0
+offset_right = 154.0
+offset_bottom = 76.0
+color = Color(0.42, 0.34, 0.24, 0.12)
+
 [node name="DustWake" type="ColorRect" parent="."]
 offset_left = 18.0
 offset_top = 116.0
 offset_right = 262.0
 offset_bottom = 196.0
 color = Color(0.42, 0.38, 0.32, 0.12)
+
+[node name="OverheadDust" type="ColorRect" parent="."]
+offset_left = 88.0
+offset_top = 48.0
+offset_right = 214.0
+offset_bottom = 122.0
+color = Color(0.5, 0.46, 0.4, 0.08)
 
 [node name="BrokenTimber" type="ColorRect" parent="."]
 offset_left = 48.0
@@ -50,7 +71,7 @@ offset_top = 42.0
 offset_right = 250.0
 offset_bottom = 76.0
 autowrap_mode = 3
-text = "The collapse dumps the triggering player here before they can escape outside."
+text = "The lower floor is darker, unfamiliar, and full of dust, with faint movement and creaks still carrying overhead."
 
 [node name="Player1Spawn" type="Marker2D" parent="."]
 position = Vector2(82, 150)

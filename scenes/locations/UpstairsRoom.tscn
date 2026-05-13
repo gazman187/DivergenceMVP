@@ -1,8 +1,9 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://scripts/world/GreyboxLocation.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/world/Door.gd" id="2"]
 [ext_resource type="Script" path="res://scripts/world/WorldInteractionZone.gd" id="3"]
+[ext_resource type="Script" path="res://scripts/world/TriggerZone.gd" id="4"]
 
 [sub_resource type="RectangleShape2D" id="1"]
 size = Vector2(300, 12)
@@ -16,6 +17,9 @@ size = Vector2(84, 64)
 [sub_resource type="RectangleShape2D" id="4"]
 size = Vector2(78, 58)
 
+[sub_resource type="RectangleShape2D" id="5"]
+size = Vector2(70, 60)
+
 [node name="UpstairsRoom" type="Node2D"]
 script = ExtResource("1")
 location_id = "UpstairsRoom"
@@ -25,12 +29,33 @@ offset_right = 300.0
 offset_bottom = 220.0
 color = Color(0.19, 0.16, 0.14, 1)
 
+[node name="PreCollapseWaterBloom" type="ColorRect" parent="."]
+offset_left = 150.0
+offset_top = 18.0
+offset_right = 278.0
+offset_bottom = 76.0
+color = Color(0.32, 0.26, 0.18, 0.16)
+
 [node name="WarmGlow" type="ColorRect" parent="."]
 offset_left = 18.0
 offset_top = 18.0
 offset_right = 282.0
 offset_bottom = 150.0
 color = Color(0.56, 0.38, 0.2, 0.14)
+
+[node name="PreCollapseHallDraft" type="ColorRect" parent="."]
+offset_left = 188.0
+offset_top = 118.0
+offset_right = 286.0
+offset_bottom = 190.0
+color = Color(0.36, 0.34, 0.26, 0.16)
+
+[node name="PreCollapsePeelingStrip" type="ColorRect" parent="."]
+offset_left = 24.0
+offset_top = 30.0
+offset_right = 40.0
+offset_bottom = 146.0
+color = Color(0.68, 0.62, 0.48, 0.12)
 
 [node name="TableBlock" type="ColorRect" parent="."]
 offset_left = 42.0
@@ -59,7 +84,7 @@ offset_top = 42.0
 offset_right = 246.0
 offset_bottom = 76.0
 autowrap_mode = 3
-text = "Both players begin here before anyone tests the hallway."
+text = "A stale upstairs room leaning toward a hallway that already sounds too tired to trust."
 
 [node name="Player1Spawn" type="Marker2D" parent="."]
 position = Vector2(92, 178)
@@ -96,6 +121,11 @@ target_location = "UpstairsHallway"
 script = ExtResource("2")
 interaction_label = "Break for the bedroom"
 target_location = "Bedroom"
+
+[node name="EdgeInspectInteractable" type="Node" parent="."]
+script = ExtResource("4")
+interaction_label = "Study the hallway threshold"
+trigger_action = "collapsed_edge"
 
 [node name="HallwayDoorZone" type="Area2D" parent="."]
 script = ExtResource("3")
@@ -134,3 +164,23 @@ offset_top = 46.0
 offset_right = 112.0
 offset_bottom = 104.0
 color = Color(0.28, 0.46, 0.58, 0.12)
+
+[node name="EdgeInspectZone" type="Area2D" parent="."]
+script = ExtResource("3")
+collision_layer = 2
+collision_mask = 0
+required_location = "UpstairsRoom"
+zone_label = "Study the hallway threshold"
+hover_audio_event = "weak_floor_groan"
+interactable_path = NodePath("../EdgeInspectInteractable")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="EdgeInspectZone"]
+position = Vector2(238, 90)
+shape = SubResource("5")
+
+[node name="Highlight" type="ColorRect" parent="EdgeInspectZone"]
+offset_left = 204.0
+offset_top = 60.0
+offset_right = 274.0
+offset_bottom = 120.0
+color = Color(0.48, 0.4, 0.28, 0.12)

@@ -11,6 +11,7 @@ const LOCATION_SCENES := {
 }
 
 var _last_reconvergence_signature: String = ""
+var _bedroom_scare_triggered: bool = false
 
 
 func get_scene_path_for_location(location: String) -> String:
@@ -22,6 +23,7 @@ func get_scene_path_for_location(location: String) -> String:
 
 func start_new_run() -> void:
 	_last_reconvergence_signature = ""
+	_bedroom_scare_triggered = false
 	GameState.reset_state()
 	EventBus.emit_prompt_changed("Both players begin together upstairs. Move either player into the hallway to test the collapse split.")
 	EventBus.emit_event_logged("House quiet. Two voices upstairs. The weak hallway waits ahead.", "system")
@@ -30,26 +32,27 @@ func start_new_run() -> void:
 
 
 func move_player_to_hallway(player_id: String) -> bool:
-	var current := GameState.get_player_location(player_id)
+	var current: String = GameState.get_player_location(player_id)
 	if current != "UpstairsRoom":
 		EventBus.emit_prompt_changed("%s is not in the upstairs room." % GameState.get_player_display_name(player_id))
 		return false
 
 	if GameState.floor_collapsed:
-		EventBus.emit_prompt_changed("The hallway is gone. %s needs to find the bedroom route instead." % GameState.get_player_display_name(player_id))
+		EventBus.emit_prompt_changed("The hall has torn open. %s can only edge closer from the doorway or break for the bedroom." % GameState.get_player_display_name(player_id))
 		return false
 
 	GameState.set_player_location(player_id, "UpstairsHallway")
 	EventBus.emit_player_routed(player_id, "UpstairsHallway")
 	EventBus.emit_prompt_changed("%s steps into the weak hallway." % GameState.get_player_display_name(player_id))
 	EventBus.emit_event_logged("%s steps into the weak hallway." % GameState.get_player_display_name(player_id), "movement")
+	EventBus.emit_event_logged("The boards flex under the wallpapered dark.", "system")
 	EventBus.emit_audio_requested("footstep_creak")
 	refresh_radio_status()
 	return true
 
 
 func attempt_hallway_cross(player_id: String) -> bool:
-	var current := GameState.get_player_location(player_id)
+	var current: String = GameState.get_player_location(player_id)
 	if current != "UpstairsHallway":
 		EventBus.emit_prompt_changed("%s needs to be standing in the hallway first." % GameState.get_player_display_name(player_id))
 		return false
@@ -63,22 +66,24 @@ func attempt_hallway_cross(player_id: String) -> bool:
 	EventBus.emit_collapse_triggered(player_id)
 	EventBus.emit_player_routed(player_id, "Downstairs")
 
-	var other_player := GameState.get_other_player_id(player_id)
+	var other_player: String = GameState.get_other_player_id(player_id)
 	EventBus.emit_cinematic_requested("res://scenes/cinematic/FloorCollapseCinematic.tscn")
 	EventBus.emit_prompt_changed("%s crashes through the floor. %s is cut off upstairs and must find the bedroom route manually." % [
 		GameState.get_player_display_name(player_id),
 		GameState.get_player_display_name(other_player)
 	])
-	EventBus.emit_event_logged("The floor collapses beneath %s." % GameState.get_player_display_name(player_id), "critical")
-	EventBus.emit_event_logged("%s is cut off upstairs. The bedroom is now the only way through." % GameState.get_player_display_name(other_player), "critical")
+	EventBus.emit_event_logged("The hallway bows, then tears open beneath %s." % GameState.get_player_display_name(player_id), "critical")
+	EventBus.emit_event_logged("%s is left staring at the open drop. The bedroom is now the only way through." % GameState.get_player_display_name(other_player), "critical")
+	EventBus.emit_event_logged("Dust rolls through the upper floor. Something settles in the dark below.", "system")
 	EventBus.emit_audio_requested("floor_collapse")
+	EventBus.emit_audio_requested("downstairs_overhead_creak")
 	refresh_radio_status()
 	return true
 
 
 func route_player_to_bedroom(player_id: String, forced_route: bool = false) -> bool:
-	var current := GameState.get_player_location(player_id)
-	var valid_source := current in ["UpstairsRoom", "UpstairsHallway", "Bedroom"]
+	var current: String = GameState.get_player_location(player_id)
+	var valid_source: bool = current in ["UpstairsRoom", "UpstairsHallway", "Bedroom"]
 	if not valid_source:
 		EventBus.emit_prompt_changed("%s is no longer upstairs, so the bedroom route does not apply." % GameState.get_player_display_name(player_id))
 		return false
@@ -93,8 +98,12 @@ func route_player_to_bedroom(player_id: String, forced_route: bool = false) -> b
 
 	GameState.set_player_location(player_id, "Bedroom")
 	EventBus.emit_player_routed(player_id, "Bedroom")
-	EventBus.emit_prompt_changed("%s is redirected into the bedroom and needs another way out." % GameState.get_player_display_name(player_id))
-	EventBus.emit_event_logged("%s is rerouted through the bedroom." % GameState.get_player_display_name(player_id), "system")
+	EventBus.emit_prompt_changed("%s slips into the bedroom and needs another way out." % GameState.get_player_display_name(player_id))
+	EventBus.emit_event_logged("%s slips into the bedroom, cut off from the broken hall." % GameState.get_player_display_name(player_id), "system")
+	if GameState.floor_collapsed and not _bedroom_scare_triggered:
+		_bedroom_scare_triggered = true
+		EventBus.emit_event_logged("The hanging light jerks hard on its cord and clicks dead.", "critical")
+		EventBus.emit_audio_requested("bedroom_fixture_snap")
 	EventBus.emit_audio_requested("door_slam")
 	refresh_radio_status()
 	return true
@@ -112,6 +121,7 @@ func search_bedroom_for_key(player_id: String) -> bool:
 	GameState.take_bedroom_key(player_id)
 	EventBus.emit_prompt_changed("%s finds the bedroom key." % GameState.get_player_display_name(player_id))
 	EventBus.emit_event_logged("%s finds the bedroom key in the dark bedroom." % GameState.get_player_display_name(player_id), "system")
+	EventBus.emit_event_logged("Night air leaks in through the window frame.", "system")
 	EventBus.emit_audio_requested("pickup_key")
 	refresh_radio_status()
 	return true
@@ -126,6 +136,7 @@ func escape_bedroom_via_window(player_id: String) -> bool:
 	EventBus.emit_player_routed(player_id, "Outside")
 	EventBus.emit_prompt_changed("%s climbs down the drainpipe and makes it outside." % GameState.get_player_display_name(player_id))
 	EventBus.emit_event_logged("%s escapes through the bedroom window and down the drainpipe." % GameState.get_player_display_name(player_id), "movement")
+	EventBus.emit_event_logged("The yard opens wide and cold beyond the house.", "hope")
 	EventBus.emit_audio_requested("window_escape")
 	refresh_radio_status()
 	_emit_reconvergence_if_needed()
@@ -141,14 +152,35 @@ func move_downstairs_to_outside(player_id: String) -> bool:
 	EventBus.emit_player_routed(player_id, "Outside")
 	EventBus.emit_prompt_changed("%s exits downstairs and reaches the outside reconvergence point." % GameState.get_player_display_name(player_id))
 	EventBus.emit_event_logged("%s stumbles out of the lower floor and reaches the yard." % GameState.get_player_display_name(player_id), "movement")
+	EventBus.emit_event_logged("Outside feels wider, colder, and suddenly easier to breathe in.", "hope")
 	EventBus.emit_audio_requested("outside_door")
 	refresh_radio_status()
 	_emit_reconvergence_if_needed()
 	return true
 
 
+func inspect_collapsed_edge(player_id: String) -> bool:
+	var current: String = GameState.get_player_location(player_id)
+	var valid_location: bool = current == "UpstairsRoom" or current == "UpstairsHallway"
+	if not valid_location:
+		EventBus.emit_prompt_changed("%s cannot reach the broken edge from here." % GameState.get_player_display_name(player_id))
+		return false
+
+	if not GameState.floor_collapsed:
+		EventBus.emit_prompt_changed("The hallway still holds, but the boards answer with a low flex.")
+		EventBus.emit_event_logged("The floor complains under the weight of the house.", "system")
+		EventBus.emit_audio_requested("weak_floor_groan")
+		return true
+
+	EventBus.emit_prompt_changed("The floor is gone. You cannot follow from here.")
+	EventBus.emit_event_logged("%s peers over the jagged drop. Only dust and a faint sound below answer back." % GameState.get_player_display_name(player_id), "critical")
+	EventBus.emit_audio_requested("edge_pebble_fall")
+	refresh_radio_status()
+	return true
+
+
 func toggle_woods_edge(player_id: String) -> bool:
-	var current := GameState.get_player_location(player_id)
+	var current: String = GameState.get_player_location(player_id)
 	if current == "Outside":
 		GameState.set_player_location(player_id, "WoodsEdge")
 		EventBus.emit_player_routed(player_id, "WoodsEdge")
@@ -173,7 +205,7 @@ func toggle_woods_edge(player_id: String) -> bool:
 
 
 func interact_with_shed(player_id: String) -> bool:
-	var current := GameState.get_player_location(player_id)
+	var current: String = GameState.get_player_location(player_id)
 	if current == "Shed":
 		return leave_shed(player_id)
 
@@ -218,7 +250,7 @@ func leave_shed(player_id: String) -> bool:
 
 
 func refresh_radio_status() -> void:
-	var profile := VoiceProximityManager.calculate_profile(
+	var profile: Dictionary = VoiceProximityManager.calculate_profile(
 		GameState.player_1_location,
 		GameState.player_2_location,
 		GameState.floor_collapsed
@@ -235,7 +267,7 @@ func _emit_reconvergence_if_needed() -> void:
 		_last_reconvergence_signature = ""
 		return
 
-	var signature := GameState.player_1_location
+	var signature: String = GameState.player_1_location
 	if signature == _last_reconvergence_signature:
 		return
 

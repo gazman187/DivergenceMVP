@@ -55,12 +55,12 @@ func _on_state_changed() -> void:
 
 
 func _process(delta: float) -> void:
-	var changed := false
+	var changed: bool = false
 	changed = _move_audio_value("current_connection_strength", target_connection_strength, CONNECTION_FADE_SPEED * delta) or changed
 	changed = _move_audio_value("current_voice_volume", target_voice_volume, CONNECTION_FADE_SPEED * delta) or changed
 	changed = _move_audio_value("current_environment_bleed", target_environment_bleed, BLEED_FADE_SPEED * delta) or changed
 
-	var next_state := VoiceProximityManager.state_from_strength(current_connection_strength)
+	var next_state: String = VoiceProximityManager.state_from_strength(current_connection_strength)
 	if next_state != current_signal_state:
 		_handle_signal_transition(current_signal_state, next_state)
 		current_signal_state = next_state
@@ -74,7 +74,7 @@ func _process(delta: float) -> void:
 
 
 func _sync_ambience() -> void:
-	var target := _resolve_ambience_profile()
+	var target: String = _resolve_ambience_profile()
 	if target == current_ambience:
 		return
 
@@ -100,9 +100,9 @@ func _sync_radio_profile(status: String) -> void:
 
 
 func _sync_connection_target(profile: Dictionary, instant: bool) -> void:
-	var previous_target_state := target_signal_state
-	var previous_target_flavor := target_signal_flavor
-	var previous_target_relationship := target_relationship
+	var previous_target_state: String = target_signal_state
+	var previous_target_flavor: String = target_signal_flavor
+	var previous_target_relationship: String = target_relationship
 	target_connection_strength = _profile_float(profile, "strength", 0.0)
 	target_voice_volume = _profile_float(profile, "voice_volume", target_connection_strength)
 	target_environment_bleed = _profile_float(profile, "environment_bleed", 0.0)
@@ -230,7 +230,7 @@ func _emit_environment_bleed(event_name: String) -> void:
 
 
 func _resolve_ambience_profile() -> String:
-	var locations := [
+	var locations: Array[String] = [
 		GameState.player_1_location,
 		GameState.player_2_location
 	]
@@ -244,11 +244,20 @@ func _resolve_ambience_profile() -> String:
 	if "Outside" in locations and GameState.player_1_location == GameState.player_2_location:
 		return "outside_reconverged"
 
+	if GameState.floor_collapsed and "Bedroom" in locations:
+		return "bedroom_isolation"
+
+	if GameState.floor_collapsed and "Downstairs" in locations:
+		return "below_house_dread"
+
 	if GameState.floor_collapsed and GameState.player_1_location != GameState.player_2_location:
 		return "strained_silence"
 
 	if "Outside" in locations:
 		return "yard_hush"
+
+	if "UpstairsHallway" in locations:
+		return "hallway_strain"
 
 	return "upstairs_hum"
 

@@ -42,6 +42,8 @@ const RADIO_STYLES := {
 @onready var _cinematic: Control = $FloorCollapseCinematic
 @onready var _cinematic_backdrop: ColorRect = $FloorCollapseCinematic/Backdrop
 @onready var _cinematic_flash: ColorRect = $FloorCollapseCinematic/Flash
+@onready var _cinematic_dust: ColorRect = $FloorCollapseCinematic/DustVeil
+@onready var _cinematic_fracture: ColorRect = $FloorCollapseCinematic/Fracture
 @onready var _cinematic_panel: PanelContainer = $FloorCollapseCinematic/CenterContainer/PanelContainer
 @onready var _cinematic_title: Label = $FloorCollapseCinematic/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ImpactTitle
 @onready var _cinematic_subtitle: Label = $FloorCollapseCinematic/CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ImpactSubtitle
@@ -71,6 +73,8 @@ func _ready() -> void:
 	_prompt_label.text = "Prototype ready. Move either player into the hallway."
 	_cinematic.visible = false
 	_cinematic_flash.modulate.a = 0.0
+	_cinematic_dust.modulate.a = 0.0
+	_cinematic_fracture.modulate.a = 0.0
 	_apply_radio_status("Clear", false)
 	_append_event("Receiver warmed. The house is listening.", "system")
 	set_process(true)
@@ -98,13 +102,13 @@ func _on_radio_status_changed(status: String) -> void:
 
 func _on_radio_connection_changed(snapshot: Dictionary) -> void:
 	_connection_strength = _snapshot_float(snapshot, "strength", 0.0)
-	var connection_percent := int(round(_connection_strength * 100.0))
+	var connection_percent: int = int(round(_connection_strength * 100.0))
 	_radio_connection_value.text = "%d%%" % connection_percent
 	_radio_flavor.text = _snapshot_string(snapshot, "flavor", "")
 	_radio_panel.modulate.a = 0.72 + (_connection_strength * 0.28)
 	_radio_connection_value.modulate = _radio_value.modulate
 
-	var line_width := lerpf(48.0, 264.0, clampf(_connection_strength, 0.0, 1.0))
+	var line_width: float = lerpf(48.0, 264.0, clampf(_connection_strength, 0.0, 1.0))
 	_radio_static_line.size.x = line_width
 
 
@@ -120,24 +124,48 @@ func _play_floor_collapse_cinematic() -> void:
 	_show_collapse_sequence()
 
 
-func _show_collapse_sequence():
+func _show_collapse_sequence() -> void:
 	_collapse_running = true
 	_cinematic.visible = true
 	_cinematic_backdrop.modulate.a = 0.0
 	_cinematic_flash.modulate.a = 0.0
+	_cinematic_dust.modulate.a = 0.0
+	_cinematic_fracture.modulate.a = 0.0
 	_cinematic_panel.scale = Vector2(0.96, 0.96)
-	_cinematic_title.text = "CRACK"
-	_cinematic_subtitle.text = "The weak hallway finally gives way."
+	_cinematic_title.text = "CREAK"
+	_cinematic_subtitle.text = "The hallway bows before it breaks."
 
-	var intro_tween := create_tween()
+	var intro_tween: Tween = create_tween()
 	intro_tween.set_parallel(true)
-	intro_tween.tween_property(_cinematic_backdrop, "modulate:a", 1.0, 0.12)
-	intro_tween.tween_property(_cinematic_panel, "scale", Vector2.ONE, 0.18)
+	intro_tween.tween_property(_cinematic_backdrop, "modulate:a", 1.0, 0.18)
+	intro_tween.tween_property(_cinematic_panel, "scale", Vector2.ONE, 0.22)
+	intro_tween.tween_property(_cinematic_fracture, "modulate:a", 0.24, 0.22)
 	await intro_tween.finished
 
-	await _shake_ui(0.42, 10.0)
+	EventBus.emit_audio_requested("floor_creak_warning")
+	await _shake_ui(0.16, 4.0)
+	await get_tree().create_timer(0.12).timeout
+
+	_cinematic_title.text = "BREAK"
+	_cinematic_subtitle.text = "Splinters, weight, and one sudden scream."
+	EventBus.emit_audio_requested("floor_break")
+	await _shake_ui(0.26, 8.0)
 	await _flash_impact()
-	await get_tree().create_timer(0.52).timeout
+
+	_cinematic_title.text = "FALL"
+	_cinematic_subtitle.text = "The upper floor vanishes into dust and dark."
+	EventBus.emit_audio_requested("fall_scream")
+	EventBus.emit_audio_requested("fall_impact")
+	var dust_tween: Tween = create_tween()
+	dust_tween.set_parallel(true)
+	dust_tween.tween_property(_cinematic_dust, "modulate:a", 0.48, 0.18)
+	dust_tween.tween_property(_cinematic_fracture, "modulate:a", 0.42, 0.18)
+	await dust_tween.finished
+
+	_cinematic_title.text = "SEPARATED"
+	_cinematic_subtitle.text = "Only muffled house-noise remains between them."
+	EventBus.emit_audio_requested("muffled_settle")
+	await get_tree().create_timer(0.62).timeout
 
 	_cinematic.visible = false
 	position = Vector2.ZERO
@@ -147,8 +175,8 @@ func _show_collapse_sequence():
 func _apply_radio_status(status: String, animate: bool) -> void:
 	_radio_status = status
 	var style: Dictionary = _radio_style_for_status(status)
-	var active_bars := int(style["bars"])
-	var accent: Color = style["color"]
+	var active_bars: int = int(style["bars"])
+	var accent: Color = style["color"] as Color
 
 	_radio_value.text = status.to_upper()
 	_radio_value.modulate = accent
@@ -163,7 +191,7 @@ func _apply_radio_status(status: String, animate: bool) -> void:
 		bar.color = accent if index < active_bars else Color(0.21, 0.24, 0.28, 0.9)
 
 	if animate:
-		var pulse := create_tween()
+		var pulse: Tween = create_tween()
 		pulse.set_parallel(true)
 		pulse.tween_property(_radio_panel, "scale", Vector2(1.02, 1.02), 0.08)
 		pulse.tween_property(_radio_glow, "modulate:a", 0.22, 0.08)
@@ -172,7 +200,7 @@ func _apply_radio_status(status: String, animate: bool) -> void:
 
 
 func _append_event(text: String, tone: String) -> void:
-	var formatted := "%s %s" % [_tone_prefix(tone), text]
+	var formatted: String = "%s %s" % [_tone_prefix(tone), text]
 	if not _event_feed_lines.is_empty() and _event_feed_lines[-1] == formatted:
 		return
 
@@ -229,7 +257,7 @@ func _pulse_prompt() -> void:
 	tween.chain().tween_property(_prompt_frame, "scale", Vector2.ONE, 0.16)
 
 
-func _shake_ui(duration: float, amplitude: float):
+func _shake_ui(duration: float, amplitude: float) -> void:
 	var end_time := Time.get_ticks_msec() + int(duration * 1000.0)
 	while Time.get_ticks_msec() < end_time:
 		position = Vector2(
@@ -241,8 +269,8 @@ func _shake_ui(duration: float, amplitude: float):
 	position = Vector2.ZERO
 
 
-func _flash_impact():
-	var flash_tween := create_tween()
+func _flash_impact() -> void:
+	var flash_tween: Tween = create_tween()
 	flash_tween.tween_property(_cinematic_flash, "modulate:a", 0.95, 0.05)
 	flash_tween.chain().tween_property(_cinematic_flash, "modulate:a", 0.0, 0.28)
 	await flash_tween.finished

@@ -65,8 +65,14 @@ func _resolve_prompt_label(player_id: String) -> String:
 	if interactable == null:
 		return ""
 
-	if interactable is TriggerZone and GameState.floor_collapsed:
-		return "The hallway is gone. The bedroom route is all that remains."
+	if interactable is TriggerZone:
+		var trigger: TriggerZone = interactable as TriggerZone
+		if trigger.trigger_action == "hallway_collapse" and GameState.floor_collapsed:
+			return "The hallway is gone. You cannot follow."
+		if trigger.trigger_action == "collapsed_edge":
+			if GameState.floor_collapsed:
+				return "Look over the broken edge"
+			return "Study the sagging floorboards"
 
 	if interactable is ItemPickup and GameState.bedroom_key_taken:
 		return "The bedroom key is already gone."
@@ -104,10 +110,18 @@ func _refresh_visual_state() -> void:
 	var color: Color = Color(0.32, 0.56, 0.66, 0.22)
 	if _focused_by_players.is_empty():
 		color.a = 0.12
-	elif GameState.floor_collapsed and _get_interactable() is TriggerZone:
-		color = Color(0.82, 0.35, 0.28, 0.30)
 	else:
-		color = Color(0.76, 0.84, 0.62, 0.26)
+		var interactable: Interactable = _get_interactable()
+		if interactable is TriggerZone:
+			var trigger: TriggerZone = interactable as TriggerZone
+			if GameState.floor_collapsed and trigger.trigger_action == "hallway_collapse":
+				color = Color(0.82, 0.35, 0.28, 0.30)
+			elif trigger.trigger_action == "collapsed_edge":
+				color = Color(0.74, 0.66, 0.46, 0.26)
+			else:
+				color = Color(0.76, 0.84, 0.62, 0.26)
+		else:
+			color = Color(0.76, 0.84, 0.62, 0.26)
 
 	if _highlight is ColorRect:
 		var rect: ColorRect = _highlight as ColorRect
