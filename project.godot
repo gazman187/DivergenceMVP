@@ -1,0 +1,20 @@
+; Engine configuration file.
+; Minimal Godot 4 project scaffold for the Divergence MVP.
+
+config_version=5
+
+[application]
+config/name="DivergenceMVP"
+run/main_scene="res://scenes/main/Main.tscn"
+config/features=PackedStringArray("4.2")
+
+[autoload]
+GameState="*res://scripts/core/GameState.gd"
+EventBus="*res://scripts/core/EventBus.gd"
+SceneRouter="*res://scripts/core/SceneRouter.gd"
+
+[display]
+window/size/viewport_width=1600
+window/size/viewport_height=900
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
