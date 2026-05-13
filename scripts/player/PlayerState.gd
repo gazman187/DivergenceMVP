@@ -23,14 +23,25 @@ func to_dict() -> Dictionary:
 
 
 static func from_dict(data: Dictionary) -> PlayerState:
-	var state := PlayerState.new(
-		str(data.get("player_id", "")),
-		str(data.get("display_name", ""))
-	)
-	state.location = str(data.get("location", "UpstairsRoom"))
+	var player_id_value: String = ""
+	var display_name_value: String = ""
+	var location_value: String = "UpstairsRoom"
+	var inventory_values: Array = []
+
+	if data.has("player_id"):
+		player_id_value = str(data["player_id"])
+	if data.has("display_name"):
+		display_name_value = str(data["display_name"])
+	if data.has("location"):
+		location_value = str(data["location"])
+	if data.has("inventory"):
+		inventory_values = data["inventory"] as Array
+
+	var state: PlayerState = PlayerState.new(player_id_value, display_name_value)
+	state.location = location_value
 	state.inventory.clear()
 
-	for item in data.get("inventory", []):
+	for item in inventory_values:
 		state.inventory.append(str(item))
 
 	return state

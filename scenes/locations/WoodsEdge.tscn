@@ -1,41 +1,102 @@
-[gd_scene format=3]
+[gd_scene load_steps=7 format=3]
 
-[node name="WoodsEdge" type="PanelContainer"]
-custom_minimum_size = Vector2(0, 200)
+[ext_resource type="Script" path="res://scripts/world/GreyboxLocation.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/world/Door.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/world/WorldInteractionZone.gd" id="3"]
 
-[node name="Background" type="ColorRect" parent="."]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_right = 0.0
-offset_bottom = 0.0
+[sub_resource type="RectangleShape2D" id="1"]
+size = Vector2(280, 12)
+
+[sub_resource type="RectangleShape2D" id="2"]
+size = Vector2(12, 220)
+
+[sub_resource type="RectangleShape2D" id="3"]
+size = Vector2(86, 62)
+
+[node name="WoodsEdge" type="Node2D"]
+script = ExtResource("1")
+location_id = "WoodsEdge"
+
+[node name="GroundFill" type="ColorRect" parent="."]
+offset_right = 280.0
+offset_bottom = 220.0
 color = Color(0.06, 0.1, 0.08, 1)
 
 [node name="MistBand" type="ColorRect" parent="."]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 14.0
-offset_top = 120.0
-offset_right = -14.0
-offset_bottom = -18.0
-color = Color(0.56, 0.65, 0.58, 0.06)
+offset_left = 18.0
+offset_top = 118.0
+offset_right = 262.0
+offset_bottom = 188.0
+color = Color(0.56, 0.65, 0.58, 0.08)
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
-theme_override_constants/margin_left = 18
-theme_override_constants/margin_top = 18
-theme_override_constants/margin_right = 18
-theme_override_constants/margin_bottom = 18
+[node name="TreeWall" type="ColorRect" parent="."]
+offset_left = 196.0
+offset_top = 22.0
+offset_right = 260.0
+offset_bottom = 184.0
+color = Color(0.1, 0.16, 0.12, 1)
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
-theme_override_constants/separation = 8
-
-[node name="Title" type="Label" parent="MarginContainer/VBoxContainer"]
+[node name="Title" type="Label" parent="."]
+offset_left = 18.0
+offset_top = 16.0
+offset_right = 136.0
+offset_bottom = 38.0
 text = "WOODS EDGE"
 
-[node name="Mood" type="Label" parent="MarginContainer/VBoxContainer"]
-text = "Tree line hush. The signal starts to disappear out here."
-
-[node name="Description" type="Label" parent="MarginContainer/VBoxContainer"]
+[node name="Description" type="Label" parent="."]
+offset_left = 18.0
+offset_top = 42.0
+offset_right = 184.0
+offset_bottom = 84.0
 autowrap_mode = 3
-text = "Pushing one player out here helps demonstrate weaker or lost radio contact."
+text = "The tree line swallows the signal. Step back if you want the link again."
+
+[node name="Player1Spawn" type="Marker2D" parent="."]
+position = Vector2(82, 160)
+
+[node name="Player2Spawn" type="Marker2D" parent="."]
+position = Vector2(118, 160)
+
+[node name="Walls" type="StaticBody2D" parent="."]
+collision_layer = 1
+collision_mask = 1
+
+[node name="TopWall" type="CollisionShape2D" parent="Walls"]
+position = Vector2(140, 6)
+shape = SubResource("1")
+
+[node name="BottomWall" type="CollisionShape2D" parent="Walls"]
+position = Vector2(140, 214)
+shape = SubResource("1")
+
+[node name="LeftWall" type="CollisionShape2D" parent="Walls"]
+position = Vector2(6, 110)
+shape = SubResource("2")
+
+[node name="RightWall" type="CollisionShape2D" parent="Walls"]
+position = Vector2(274, 110)
+shape = SubResource("2")
+
+[node name="ReturnOutsideInteractable" type="Node" parent="."]
+script = ExtResource("2")
+interaction_label = "Return outside"
+target_location = "Outside"
+
+[node name="ReturnOutsideZone" type="Area2D" parent="."]
+script = ExtResource("3")
+collision_layer = 2
+collision_mask = 0
+required_location = "WoodsEdge"
+zone_label = "Head back toward the yard"
+interactable_path = NodePath("../ReturnOutsideInteractable")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ReturnOutsideZone"]
+position = Vector2(66, 160)
+shape = SubResource("3")
+
+[node name="Highlight" type="ColorRect" parent="ReturnOutsideZone"]
+offset_left = 24.0
+offset_top = 128.0
+offset_right = 108.0
+offset_bottom = 190.0
+color = Color(0.28, 0.46, 0.58, 0.12)

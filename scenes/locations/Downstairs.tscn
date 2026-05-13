@@ -1,48 +1,103 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=7 format=3]
 
-[ext_resource type="Script" path="res://scripts/world/Door.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/world/GreyboxLocation.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/world/Door.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/world/WorldInteractionZone.gd" id="3"]
 
-[node name="Downstairs" type="PanelContainer"]
-custom_minimum_size = Vector2(0, 200)
+[sub_resource type="RectangleShape2D" id="1"]
+size = Vector2(280, 12)
 
-[node name="Background" type="ColorRect" parent="."]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_right = 0.0
-offset_bottom = 0.0
-color = Color(0.11, 0.11, 0.12, 1)
+[sub_resource type="RectangleShape2D" id="2"]
+size = Vector2(12, 220)
+
+[sub_resource type="RectangleShape2D" id="3"]
+size = Vector2(86, 64)
+
+[node name="Downstairs" type="Node2D"]
+script = ExtResource("1")
+location_id = "Downstairs"
+
+[node name="RoomFill" type="ColorRect" parent="."]
+offset_right = 280.0
+offset_bottom = 220.0
+color = Color(0.1, 0.1, 0.12, 1)
 
 [node name="DustWake" type="ColorRect" parent="."]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 8.0
-offset_top = 90.0
-offset_right = -8.0
-offset_bottom = -22.0
-color = Color(0.5, 0.48, 0.42, 0.08)
+offset_left = 18.0
+offset_top = 116.0
+offset_right = 262.0
+offset_bottom = 196.0
+color = Color(0.42, 0.38, 0.32, 0.12)
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
-theme_override_constants/margin_left = 18
-theme_override_constants/margin_top = 18
-theme_override_constants/margin_right = 18
-theme_override_constants/margin_bottom = 18
+[node name="BrokenTimber" type="ColorRect" parent="."]
+offset_left = 48.0
+offset_top = 32.0
+offset_right = 132.0
+offset_bottom = 56.0
+rotation = 0.18
+color = Color(0.4, 0.3, 0.24, 0.94)
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
-theme_override_constants/separation = 8
-
-[node name="Title" type="Label" parent="MarginContainer/VBoxContainer"]
+[node name="Title" type="Label" parent="."]
+offset_left = 18.0
+offset_top = 16.0
+offset_right = 156.0
+offset_bottom = 38.0
 text = "DOWNSTAIRS"
 
-[node name="Mood" type="Label" parent="MarginContainer/VBoxContainer"]
-text = "Dust bloom. Ringing ears. Impact still in the walls."
-
-[node name="Description" type="Label" parent="MarginContainer/VBoxContainer"]
+[node name="Description" type="Label" parent="."]
+offset_left = 18.0
+offset_top = 42.0
+offset_right = 250.0
+offset_bottom = 76.0
 autowrap_mode = 3
-text = "The collapse drops the triggering player here before they can exit to reconverge outside."
+text = "The collapse dumps the triggering player here before they can escape outside."
 
-[node name="OutsideDoor" type="Node" parent="."]
-script = ExtResource("1")
+[node name="Player1Spawn" type="Marker2D" parent="."]
+position = Vector2(82, 150)
+
+[node name="Player2Spawn" type="Marker2D" parent="."]
+position = Vector2(118, 150)
+
+[node name="Walls" type="StaticBody2D" parent="."]
+collision_layer = 1
+collision_mask = 1
+
+[node name="TopWall" type="CollisionShape2D" parent="Walls"]
+position = Vector2(140, 6)
+shape = SubResource("1")
+
+[node name="BottomWall" type="CollisionShape2D" parent="Walls"]
+position = Vector2(140, 214)
+shape = SubResource("1")
+
+[node name="LeftWall" type="CollisionShape2D" parent="Walls"]
+position = Vector2(6, 110)
+shape = SubResource("2")
+
+[node name="RightWall" type="CollisionShape2D" parent="Walls"]
+position = Vector2(274, 110)
+shape = SubResource("2")
+
+[node name="OutsideDoorInteractable" type="Node" parent="."]
+script = ExtResource("2")
 interaction_label = "Exit downstairs to outside"
 target_location = "Outside"
+
+[node name="OutsideDoorZone" type="Area2D" parent="."]
+script = ExtResource("3")
+collision_layer = 2
+collision_mask = 0
+required_location = "Downstairs"
+zone_label = "Push through to the yard"
+interactable_path = NodePath("../OutsideDoorInteractable")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="OutsideDoorZone"]
+position = Vector2(226, 124)
+shape = SubResource("3")
+
+[node name="Highlight" type="ColorRect" parent="OutsideDoorZone"]
+offset_left = 184.0
+offset_top = 92.0
+offset_right = 270.0
+offset_bottom = 156.0
+color = Color(0.28, 0.46, 0.58, 0.12)

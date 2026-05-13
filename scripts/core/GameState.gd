@@ -42,7 +42,10 @@ func reset_state(emit_signal: bool = true) -> void:
 
 
 func get_player_state(player_id: String) -> PlayerState:
-	return _player_states.get(player_id) as PlayerState
+	if not _player_states.has(player_id):
+		return null
+
+	return _player_states[player_id] as PlayerState
 
 
 func get_player_location(player_id: String) -> String:
@@ -163,21 +166,21 @@ func serialize_state() -> Dictionary:
 
 
 func apply_save_data(data: Dictionary) -> void:
-	floor_collapsed = bool(data.get("floor_collapsed", false))
-	bedroom_key_taken = bool(data.get("bedroom_key_taken", false))
-	shed_unlocked = bool(data.get("shed_unlocked", false))
-	collapse_triggered_by = str(data.get("collapse_triggered_by", ""))
+	floor_collapsed = _dictionary_bool(data, "floor_collapsed", false)
+	bedroom_key_taken = _dictionary_bool(data, "bedroom_key_taken", false)
+	shed_unlocked = _dictionary_bool(data, "shed_unlocked", false)
+	collapse_triggered_by = _dictionary_string(data, "collapse_triggered_by", "")
 
-	var players_data: Dictionary = data.get("players", {})
+	var players_data: Dictionary = _dictionary_dict(data, "players")
 	if players_data.is_empty():
-		var player_one := PlayerState.new(PLAYER_1_ID, "Player 1")
-		player_one.location = str(data.get("player_1_location", "UpstairsRoom"))
-		for item in data.get("player_1_inventory", []):
+		var player_one: PlayerState = PlayerState.new(PLAYER_1_ID, "Player 1")
+		player_one.location = _dictionary_string(data, "player_1_location", "UpstairsRoom")
+		for item in _dictionary_array(data, "player_1_inventory"):
 			player_one.inventory.append(str(item))
 
-		var player_two := PlayerState.new(PLAYER_2_ID, "Player 2")
-		player_two.location = str(data.get("player_2_location", "UpstairsRoom"))
-		for item in data.get("player_2_inventory", []):
+		var player_two: PlayerState = PlayerState.new(PLAYER_2_ID, "Player 2")
+		player_two.location = _dictionary_string(data, "player_2_location", "UpstairsRoom")
+		for item in _dictionary_array(data, "player_2_inventory"):
 			player_two.inventory.append(str(item))
 
 		_player_states = {
@@ -185,9 +188,11 @@ func apply_save_data(data: Dictionary) -> void:
 			PLAYER_2_ID: player_two
 		}
 	else:
+		var player_one_data: Dictionary = _dictionary_dict(players_data, PLAYER_1_ID)
+		var player_two_data: Dictionary = _dictionary_dict(players_data, PLAYER_2_ID)
 		_player_states = {
-			PLAYER_1_ID: PlayerState.from_dict(players_data.get(PLAYER_1_ID, {})),
-			PLAYER_2_ID: PlayerState.from_dict(players_data.get(PLAYER_2_ID, {}))
+			PLAYER_1_ID: PlayerState.from_dict(player_one_data),
+			PLAYER_2_ID: PlayerState.from_dict(player_two_data)
 		}
 		if get_player_state(PLAYER_1_ID).display_name == "":
 			get_player_state(PLAYER_1_ID).display_name = "Player 1"
@@ -215,3 +220,31 @@ func _emit_inventory_changed(player_id: String) -> void:
 	var bus := get_node_or_null("/root/EventBus")
 	if bus != null:
 		bus.emit_inventory_changed(player_id, get_player_inventory(player_id))
+
+
+func _dictionary_bool(data: Dictionary, key: String, default_value: bool) -> bool:
+	if not data.has(key):
+		return default_value
+
+	return bool(data[key])
+
+
+func _dictionary_string(data: Dictionary, key: String, default_value: String) -> String:
+	if not data.has(key):
+		return default_value
+
+	return str(data[key])
+
+
+func _dictionary_array(data: Dictionary, key: String) -> Array:
+	if not data.has(key):
+		return []
+
+	return data[key] as Array
+
+
+func _dictionary_dict(data: Dictionary, key: String) -> Dictionary:
+	if not data.has(key):
+		return {}
+
+	return data[key] as Dictionary

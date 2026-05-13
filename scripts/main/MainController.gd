@@ -1,7 +1,7 @@
 extends Control
 class_name MainController
 
-const PLAYER_IDS := [GameState.PLAYER_1_ID, GameState.PLAYER_2_ID]
+const PLAYER_IDS: Array[String] = [GameState.PLAYER_1_ID, GameState.PLAYER_2_ID]
 const LOCATION_LABELS := {
 	"UpstairsRoom": "Upstairs Room",
 	"UpstairsHallway": "Upstairs Hallway",
@@ -14,6 +14,12 @@ const LOCATION_LABELS := {
 
 @onready var _session_manager: SessionManager = $SessionManager
 @onready var _save_manager: SaveManager = $SaveManager
+@onready var _debug_toggle_button: Button = $DebugToggleButton
+@onready var _debug_panel: PanelContainer = $DebugPanel
+@onready var _world_fade: ColorRect = $WorldFade
+@onready var _active_player_value: Label = $WorldHUD/Panel/Margin/VBox/ActivePlayerValue
+@onready var _active_location_value: Label = $WorldHUD/Panel/Margin/VBox/ActiveLocationValue
+@onready var _interaction_hint_value: Label = $WorldHUD/Panel/Margin/VBox/InteractionHintValue
 @onready var _collapse_label: Label = find_child("CollapseLabel", true, false) as Label
 @onready var _key_label: Label = find_child("KeyLabel", true, false) as Label
 @onready var _shed_label: Label = find_child("ShedLabel", true, false) as Label
@@ -26,18 +32,71 @@ const LOCATION_LABELS := {
 @onready var _load_button: Button = find_child("LoadButton", true, false) as Button
 
 var _player_widgets: Dictionary = {}
-var _preview_nodes: Dictionary = {}
+var _player_pawns: Dictionary = {}
+var _location_nodes: Dictionary = {}
 var _last_locations: Dictionary = {}
+var _active_player_id: String = GameState.PLAYER_1_ID
+var _has_world_state: bool = false
 
 
 func _ready() -> void:
 	_cache_player_widgets()
+	_cache_world_nodes()
 	_connect_buttons()
+	_connect_pawn_signals()
 
 	EventBus.state_changed.connect(_refresh_view)
 	EventBus.load_completed.connect(_refresh_view_after_load)
 
+	_debug_toggle_button.pressed.connect(_toggle_debug_panel)
+	_set_active_player(GameState.PLAYER_1_ID)
 	_session_manager.initialize_local_session()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	var key_event: InputEventKey = event as InputEventKey
+	if key_event == null or not key_event.pressed or key_event.echo:
+		return
+
+	if key_event.keycode == KEY_TAB or key_event.keycode == KEY_Q:
+		_switch_active_player()
+		accept_event()
+		return
+
+	if key_event.keycode == KEY_E:
+		var pawn: PlayerPawn = _player_pawns[_active_player_id] as PlayerPawn
+		if pawn != null:
+			pawn.try_interact()
+		accept_event()
+		return
+
+	if key_event.keycode == KEY_F1:
+		_toggle_debug_panel()
+		accept_event()
+
+
+func _cache_world_nodes() -> void:
+	_player_pawns = {
+		GameState.PLAYER_1_ID: $WorldLayer/Player1Pawn,
+		GameState.PLAYER_2_ID: $WorldLayer/Player2Pawn
+	}
+
+	_location_nodes = {
+		"UpstairsRoom": $WorldLayer/UpstairsRoom,
+		"UpstairsHallway": $WorldLayer/UpstairsHallway,
+		"Bedroom": $WorldLayer/Bedroom,
+		"Downstairs": $WorldLayer/Downstairs,
+		"Outside": $WorldLayer/Outside,
+		"WoodsEdge": $WorldLayer/WoodsEdge,
+		"Shed": $WorldLayer/Shed
+	}
+
+
+func _connect_pawn_signals() -> void:
+	for player_id in PLAYER_IDS:
+		var pawn: PlayerPawn = _player_pawns[player_id] as PlayerPawn
+		if pawn != null:
+			pawn.interaction_zone_changed.connect(_on_pawn_interaction_zone_changed)
 
 
 func _cache_player_widgets() -> void:
@@ -46,7 +105,6 @@ func _cache_player_widgets() -> void:
 			"location": find_child("Player1LocationLabel", true, false),
 			"inventory": find_child("Player1InventoryLabel", true, false),
 			"status": find_child("Player1StatusLabel", true, false),
-			"preview": find_child("Player1Preview", true, false),
 			"hallway": find_child("P1HallwayButton", true, false),
 			"cross": find_child("P1CrossButton", true, false),
 			"bedroom": find_child("P1BedroomButton", true, false),
@@ -60,7 +118,6 @@ func _cache_player_widgets() -> void:
 			"location": find_child("Player2LocationLabel", true, false),
 			"inventory": find_child("Player2InventoryLabel", true, false),
 			"status": find_child("Player2StatusLabel", true, false),
-			"preview": find_child("Player2Preview", true, false),
 			"hallway": find_child("P2HallwayButton", true, false),
 			"cross": find_child("P2CrossButton", true, false),
 			"bedroom": find_child("P2BedroomButton", true, false),
@@ -98,11 +155,13 @@ func _connect_buttons() -> void:
 
 
 func _bind_player_button(player_id: String, widget_key: String, callback: Callable) -> void:
-	var button: Button = _player_widgets[player_id][widget_key]
+	var button: Button = _player_widgets[player_id][widget_key] as Button
 	button.pressed.connect(callback.bind(player_id))
 
 
 func _on_reset_pressed() -> void:
+	_last_locations.clear()
+	_has_world_state = false
 	SceneRouter.start_new_run()
 
 
@@ -115,70 +174,55 @@ func _on_load_pressed() -> void:
 
 
 func _refresh_view() -> void:
-	var radio_profile := VoiceProximityManager.calculate_profile(
+	var radio_profile: Dictionary = VoiceProximityManager.calculate_profile(
 		GameState.player_1_location,
 		GameState.player_2_location,
 		GameState.floor_collapsed
 	)
+	var radio_state: String = str(radio_profile["state"])
+	var radio_strength: float = float(radio_profile["strength"])
+
 	_collapse_label.text = "Floor Collapsed: %s" % _format_bool(GameState.floor_collapsed)
 	_key_label.text = "Bedroom Key Taken: %s" % _format_bool(GameState.bedroom_key_taken)
 	_shed_label.text = "Shed Unlocked: %s" % _format_bool(GameState.shed_unlocked)
 	_trigger_label.text = "Collapse Triggered By: %s" % _format_trigger_name()
 	_key_holder_label.text = "Key Holder: %s" % _key_holder_text()
-	var radio_state: String = str(radio_profile["state"])
-	var radio_strength: float = float(radio_profile["strength"])
-	_link_label.text = "Radio Link: %s / %d%%" % [
-		radio_state,
-		int(round(radio_strength * 100.0))
-	]
+	_link_label.text = "Radio Link: %s / %d%%" % [radio_state, int(round(radio_strength * 100.0))]
 	_reconverged_label.text = "Group State: %s" % _group_state_text()
 
+	var location_changed: bool = false
 	for player_id in PLAYER_IDS:
 		_refresh_player_panel(player_id)
+		var location: String = GameState.get_player_location(player_id)
+		var previous_location: String = ""
+		if _last_locations.has(player_id):
+			previous_location = str(_last_locations[player_id])
+		if previous_location != location:
+			_sync_player_position(player_id, location)
+			location_changed = true
+		_last_locations[player_id] = location
+
+	if _has_world_state and location_changed:
+		_play_world_fade()
+
+	_has_world_state = true
+	_update_world_hud()
 
 
 func _refresh_player_panel(player_id: String) -> void:
 	var widgets: Dictionary = _player_widgets[player_id]
-	var location := GameState.get_player_location(player_id)
-	var inventory := GameState.get_player_inventory(player_id)
+	var location: String = GameState.get_player_location(player_id)
+	var inventory: Array[String] = GameState.get_player_inventory(player_id)
 
 	(widgets["location"] as Label).text = "Location: %s" % _pretty_location(location)
 	(widgets["inventory"] as Label).text = "Inventory: %s" % _pretty_inventory(inventory)
 	(widgets["status"] as Label).text = "Status: %s" % _player_status_text(player_id)
-
-	_update_preview(player_id, location)
 	_update_button_states(player_id, location)
-
-
-func _update_preview(player_id: String, location: String) -> void:
-	var preview_holder: Control = _player_widgets[player_id]["preview"]
-	for child in preview_holder.get_children():
-		child.queue_free()
-
-	var scene_path := SceneRouter.get_scene_path_for_location(location)
-	var packed_scene: PackedScene = load(scene_path)
-	if packed_scene == null:
-		_preview_nodes[player_id] = null
-		return
-
-	var preview := packed_scene.instantiate()
-	preview_holder.add_child(preview)
-	_preview_nodes[player_id] = preview
-
-	var previous_location: String = ""
-	if _last_locations.has(player_id):
-		previous_location = str(_last_locations[player_id])
-	if previous_location != location:
-		preview.modulate = Color(1, 1, 1, 0)
-		var tween := create_tween()
-		tween.tween_property(preview, "modulate", Color(1, 1, 1, 1), 0.24)
-
-	_last_locations[player_id] = location
 
 
 func _update_button_states(player_id: String, location: String) -> void:
 	var widgets: Dictionary = _player_widgets[player_id]
-	var upstairs_after_collapse := GameState.floor_collapsed and GameState.is_player_upstairs(player_id)
+	var upstairs_after_collapse: bool = GameState.floor_collapsed and GameState.is_player_upstairs(player_id)
 
 	(widgets["hallway"] as Button).disabled = location != "UpstairsRoom"
 	(widgets["cross"] as Button).disabled = location != "UpstairsHallway"
@@ -186,11 +230,20 @@ func _update_button_states(player_id: String, location: String) -> void:
 	(widgets["key"] as Button).disabled = location != "Bedroom" or GameState.bedroom_key_taken
 	(widgets["escape"] as Button).disabled = location != "Bedroom"
 	(widgets["downstairs"] as Button).disabled = location != "Downstairs"
-	(widgets["woods"] as Button).disabled = location not in ["Outside", "WoodsEdge"]
-	(widgets["shed"] as Button).disabled = location not in ["Outside", "Shed"]
+	(widgets["woods"] as Button).disabled = location != "Outside" and location != "WoodsEdge"
+	(widgets["shed"] as Button).disabled = location != "Outside" and location != "Shed"
 
 	(widgets["woods"] as Button).text = "Return Outside" if location == "WoodsEdge" else "Go To Woods Edge"
 	(widgets["shed"] as Button).text = "Leave Shed" if location == "Shed" else "Try Shed Door"
+
+
+func _sync_player_position(player_id: String, location: String) -> void:
+	var pawn: PlayerPawn = _player_pawns[player_id] as PlayerPawn
+	var location_node: GreyboxLocation = _location_nodes[location] as GreyboxLocation
+	if pawn == null or location_node == null:
+		return
+
+	pawn.sync_to_position(location_node.get_spawn_position(player_id))
 
 
 func _on_move_to_hallway(player_id: String) -> void:
@@ -198,11 +251,7 @@ func _on_move_to_hallway(player_id: String) -> void:
 
 
 func _on_cross_hallway(player_id: String) -> void:
-	_interact_or_fallback(
-		player_id,
-		"CollapseTrigger",
-		Callable(SceneRouter, "attempt_hallway_cross").bind(player_id)
-	)
+	SceneRouter.attempt_hallway_cross(player_id)
 
 
 func _on_route_bedroom(player_id: String) -> void:
@@ -210,27 +259,15 @@ func _on_route_bedroom(player_id: String) -> void:
 
 
 func _on_take_key(player_id: String) -> void:
-	_interact_or_fallback(
-		player_id,
-		"BedroomKey",
-		Callable(SceneRouter, "search_bedroom_for_key").bind(player_id)
-	)
+	SceneRouter.search_bedroom_for_key(player_id)
 
 
 func _on_escape_bedroom(player_id: String) -> void:
-	_interact_or_fallback(
-		player_id,
-		"WindowExit",
-		Callable(SceneRouter, "escape_bedroom_via_window").bind(player_id)
-	)
+	SceneRouter.escape_bedroom_via_window(player_id)
 
 
 func _on_leave_downstairs(player_id: String) -> void:
-	_interact_or_fallback(
-		player_id,
-		"OutsideDoor",
-		Callable(SceneRouter, "move_downstairs_to_outside").bind(player_id)
-	)
+	SceneRouter.move_downstairs_to_outside(player_id)
 
 
 func _on_toggle_woods(player_id: String) -> void:
@@ -238,24 +275,62 @@ func _on_toggle_woods(player_id: String) -> void:
 
 
 func _on_shed_action(player_id: String) -> void:
-	var location := GameState.get_player_location(player_id)
-	var node_name := "YardDoor" if location == "Shed" else "ShedDoor"
-	var fallback := Callable(SceneRouter, "leave_shed").bind(player_id) if location == "Shed" else Callable(SceneRouter, "interact_with_shed").bind(player_id)
-	_interact_or_fallback(player_id, node_name, fallback)
+	var location: String = GameState.get_player_location(player_id)
+	if location == "Shed":
+		SceneRouter.leave_shed(player_id)
+		return
+
+	SceneRouter.interact_with_shed(player_id)
 
 
-func _interact_or_fallback(player_id: String, node_name: String, fallback: Callable) -> void:
-	var preview: Node = _preview_nodes[player_id] if _preview_nodes.has(player_id) else null
-	if preview != null:
-		var interactable := preview.get_node_or_null(node_name)
-		if interactable != null and interactable.has_method("interact"):
-			interactable.interact(player_id)
-			return
+func _switch_active_player() -> void:
+	var next_player_id: String = GameState.PLAYER_2_ID if _active_player_id == GameState.PLAYER_1_ID else GameState.PLAYER_1_ID
+	_set_active_player(next_player_id)
 
-	fallback.call()
+
+func _set_active_player(player_id: String) -> void:
+	_active_player_id = player_id
+	for candidate_id in PLAYER_IDS:
+		var pawn: PlayerPawn = _player_pawns[candidate_id] as PlayerPawn
+		if pawn != null:
+			pawn.set_selected(candidate_id == _active_player_id)
+
+	_update_world_hud()
+
+
+func _update_world_hud() -> void:
+	var active_name: String = GameState.get_player_display_name(_active_player_id)
+	var active_location: String = _pretty_location(GameState.get_player_location(_active_player_id))
+	var prompt_text: String = ""
+	var active_pawn: PlayerPawn = _player_pawns[_active_player_id] as PlayerPawn
+	if active_pawn != null:
+		prompt_text = active_pawn.get_current_prompt()
+
+	_active_player_value.text = "Active Player: %s" % active_name
+	_active_location_value.text = "Location: %s" % active_location
+	_interaction_hint_value.text = prompt_text if prompt_text != "" else "WASD or arrows to move. Press E near a highlighted zone. Tab switches players."
+
+
+func _toggle_debug_panel() -> void:
+	_debug_panel.visible = not _debug_panel.visible
+	_debug_toggle_button.text = "Hide Debug" if _debug_panel.visible else "Show Debug"
+
+
+func _on_pawn_interaction_zone_changed(player_id: String, _zone: WorldInteractionZone) -> void:
+	if player_id == _active_player_id:
+		_update_world_hud()
+
+
+func _play_world_fade() -> void:
+	_world_fade.modulate.a = 0.0
+	var tween: Tween = create_tween()
+	tween.tween_property(_world_fade, "modulate:a", 0.24, 0.08)
+	tween.chain().tween_property(_world_fade, "modulate:a", 0.0, 0.24)
 
 
 func _refresh_view_after_load(_path: String) -> void:
+	_last_locations.clear()
+	_has_world_state = false
 	_refresh_view()
 
 
@@ -312,8 +387,8 @@ func _group_state_text() -> String:
 
 
 func _player_status_text(player_id: String) -> String:
-	var location := GameState.get_player_location(player_id)
-	var has_key := GameState.player_has_item(player_id, "bedroom_key")
+	var location: String = GameState.get_player_location(player_id)
+	var has_key: bool = GameState.player_has_item(player_id, "bedroom_key")
 
 	if has_key and location == "Outside":
 		return "Key carrier outside"

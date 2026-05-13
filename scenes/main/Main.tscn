@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=18 format=3]
 
 [ext_resource type="Script" path="res://scripts/main/MainController.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/multiplayer/SessionManager.gd" id="2"]
@@ -9,6 +9,14 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/RadioStatus.tscn" id="7"]
 [ext_resource type="PackedScene" path="res://scenes/cinematic/FloorCollapseCinematic.tscn" id="8"]
 [ext_resource type="PackedScene" path="res://scenes/ui/EventFeed.tscn" id="9"]
+[ext_resource type="PackedScene" path="res://scenes/locations/UpstairsRoom.tscn" id="10"]
+[ext_resource type="PackedScene" path="res://scenes/locations/UpstairsHallway.tscn" id="11"]
+[ext_resource type="PackedScene" path="res://scenes/locations/Bedroom.tscn" id="12"]
+[ext_resource type="PackedScene" path="res://scenes/locations/Downstairs.tscn" id="13"]
+[ext_resource type="PackedScene" path="res://scenes/locations/Outside.tscn" id="14"]
+[ext_resource type="PackedScene" path="res://scenes/locations/WoodsEdge.tscn" id="15"]
+[ext_resource type="PackedScene" path="res://scenes/locations/Shed.tscn" id="16"]
+[ext_resource type="PackedScene" path="res://scenes/players/PlayerPawn.tscn" id="17"]
 
 [node name="Main" type="Control"]
 layout_mode = 3
@@ -26,245 +34,322 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 offset_right = 0.0
 offset_bottom = 0.0
-color = Color(0.08, 0.09, 0.11, 1)
+color = Color(0.06, 0.07, 0.08, 1)
+mouse_filter = 2
 
-[node name="ColdGlow" type="ColorRect" parent="."]
+[node name="WorldGlow" type="ColorRect" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 780.0
-offset_top = -40.0
-offset_right = 0.0
-offset_bottom = 320.0
-color = Color(0.2, 0.34, 0.38, 0.11)
+offset_left = 280.0
+offset_top = 120.0
+offset_right = -260.0
+offset_bottom = -120.0
+color = Color(0.18, 0.26, 0.3, 0.08)
+mouse_filter = 2
 
-[node name="WarmGlow" type="ColorRect" parent="."]
-layout_mode = 1
-anchors_preset = 0
-offset_left = 0.0
-offset_top = 560.0
-offset_right = 540.0
-offset_bottom = 900.0
-color = Color(0.45, 0.26, 0.14, 0.08)
-
-[node name="Layout" type="MarginContainer" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
+[node name="WorldFrame" type="PanelContainer" parent="."]
+layout_mode = 0
 offset_left = 24.0
+offset_top = 100.0
+offset_right = 1144.0
+offset_bottom = 860.0
+mouse_filter = 2
+
+[node name="WorldBacking" type="ColorRect" parent="WorldFrame"]
+offset_right = 1120.0
+offset_bottom = 760.0
+color = Color(0.07, 0.08, 0.09, 1)
+mouse_filter = 2
+
+[node name="WorldLayer" type="Node2D" parent="."]
+position = Vector2(48, 126)
+
+[node name="UpstairsRoom" parent="WorldLayer" instance=ExtResource("10")]
+position = Vector2(24, 18)
+
+[node name="UpstairsHallway" parent="WorldLayer" instance=ExtResource("11")]
+position = Vector2(378, 18)
+
+[node name="Bedroom" parent="WorldLayer" instance=ExtResource("12")]
+position = Vector2(642, 18)
+
+[node name="Downstairs" parent="WorldLayer" instance=ExtResource("13")]
+position = Vector2(378, 326)
+
+[node name="Outside" parent="WorldLayer" instance=ExtResource("14")]
+position = Vector2(632, 292)
+
+[node name="WoodsEdge" parent="WorldLayer" instance=ExtResource("15")]
+position = Vector2(38, 536)
+
+[node name="Shed" parent="WorldLayer" instance=ExtResource("16")]
+position = Vector2(828, 584)
+
+[node name="Player1Pawn" parent="WorldLayer" instance=ExtResource("17")]
+player_id = "player_1"
+display_name = "Player 1"
+body_color = Color(0.82, 0.54, 0.36, 1)
+outline_color = Color(0.97, 0.92, 0.76, 1)
+
+[node name="Player2Pawn" parent="WorldLayer" instance=ExtResource("17")]
+player_id = "player_2"
+display_name = "Player 2"
+body_color = Color(0.42, 0.74, 0.84, 1)
+outline_color = Color(0.86, 0.96, 1, 1)
+
+[node name="WorldFade" type="ColorRect" parent="."]
+layout_mode = 0
+offset_left = 24.0
+offset_top = 100.0
+offset_right = 1144.0
+offset_bottom = 860.0
+color = Color(0.88, 0.9, 0.94, 0)
+mouse_filter = 2
+
+[node name="TitleBlock" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_left = 32.0
 offset_top = 24.0
-offset_right = -24.0
-offset_bottom = -24.0
-theme_override_constants/margin_left = 8
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 8
-theme_override_constants/margin_bottom = 8
+offset_right = 590.0
+offset_bottom = 88.0
+theme_override_constants/separation = 4
+mouse_filter = 2
 
-[node name="Columns" type="HBoxContainer" parent="Layout"]
+[node name="Heading" type="Label" parent="TitleBlock"]
 layout_mode = 2
-theme_override_constants/separation = 24
+text = "DIVERGENCE // PLAYABLE GREYBOX"
 
-[node name="WorldColumn" type="VBoxContainer" parent="Layout/Columns"]
-layout_mode = 2
-size_flags_horizontal = 3
-custom_minimum_size = Vector2(390, 0)
-theme_override_constants/separation = 18
-
-[node name="Heading" type="Label" parent="Layout/Columns/WorldColumn"]
-layout_mode = 2
-text = "DIVERGENCE // MVP"
-
-[node name="SubHeading" type="Label" parent="Layout/Columns/WorldColumn"]
+[node name="SubHeading" type="Label" parent="TitleBlock"]
 layout_mode = 2
 autowrap_mode = 3
-text = "Atmospheric local greybox for the collapse, separation, and reconvergence loop."
+text = "Move the active player with WASD or arrows. Press E to interact. Tab or Q switches between Player 1 and Player 2."
 
-[node name="WorldStatePanel" type="PanelContainer" parent="Layout/Columns/WorldColumn"]
-layout_mode = 2
+[node name="WorldHUD" type="Control" parent="."]
+layout_mode = 0
+offset_left = 44.0
+offset_top = 116.0
+offset_right = 404.0
+offset_bottom = 238.0
+mouse_filter = 2
 
-[node name="WorldStateMargin" type="MarginContainer" parent="Layout/Columns/WorldColumn/WorldStatePanel"]
+[node name="Panel" type="PanelContainer" parent="WorldHUD"]
+offset_right = 360.0
+offset_bottom = 122.0
+
+[node name="Margin" type="MarginContainer" parent="WorldHUD/Panel"]
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="VBox" type="VBoxContainer" parent="WorldHUD/Panel/Margin"]
+theme_override_constants/separation = 4
+
+[node name="ActivePlayerValue" type="Label" parent="WorldHUD/Panel/Margin/VBox"]
+text = "Active Player: Player 1"
+
+[node name="ActiveLocationValue" type="Label" parent="WorldHUD/Panel/Margin/VBox"]
+text = "Location: Upstairs Room"
+
+[node name="InteractionHintValue" type="Label" parent="WorldHUD/Panel/Margin/VBox"]
+autowrap_mode = 3
+text = "WASD or arrows to move. Press E near a highlighted zone. Tab switches players."
+
+[node name="DebugToggleButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 1368.0
+offset_top = 28.0
+offset_right = 1568.0
+offset_bottom = 60.0
+text = "Show Debug"
+
+[node name="DebugPanel" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 1172.0
+offset_top = 76.0
+offset_right = 1576.0
+offset_bottom = 860.0
+
+[node name="ScrollContainer" type="ScrollContainer" parent="DebugPanel"]
+offset_right = 404.0
+offset_bottom = 784.0
+horizontal_scroll_mode = 0
+
+[node name="DebugMargin" type="MarginContainer" parent="DebugPanel/ScrollContainer"]
+size_flags_horizontal = 3
+size_flags_vertical = 3
 theme_override_constants/margin_left = 16
 theme_override_constants/margin_top = 16
 theme_override_constants/margin_right = 16
 theme_override_constants/margin_bottom = 16
 
-[node name="WorldStateBox" type="VBoxContainer" parent="Layout/Columns/WorldColumn/WorldStatePanel/WorldStateMargin"]
-theme_override_constants/separation = 8
+[node name="DebugVBox" type="VBoxContainer" parent="DebugPanel/ScrollContainer/DebugMargin"]
+size_flags_horizontal = 3
+theme_override_constants/separation = 14
 
-[node name="WorldStateTitle" type="Label" parent="Layout/Columns/WorldColumn/WorldStatePanel/WorldStateMargin/WorldStateBox"]
+[node name="DebugTitle" type="Label" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox"]
+text = "DEBUG HARNESS"
+
+[node name="WorldStatePanel" type="PanelContainer" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox"]
+
+[node name="WorldStateMargin" type="MarginContainer" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox/WorldStatePanel"]
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="WorldStateBox" type="VBoxContainer" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox/WorldStatePanel/WorldStateMargin"]
+theme_override_constants/separation = 6
+
+[node name="WorldStateTitle" type="Label" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox/WorldStatePanel/WorldStateMargin/WorldStateBox"]
 text = "HOUSE STATE"
 
-[node name="CollapseLabel" type="Label" parent="Layout/Columns/WorldColumn/WorldStatePanel/WorldStateMargin/WorldStateBox"]
+[node name="CollapseLabel" type="Label" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox/WorldStatePanel/WorldStateMargin/WorldStateBox"]
 text = "Floor Collapsed: No"
 
-[node name="KeyLabel" type="Label" parent="Layout/Columns/WorldColumn/WorldStatePanel/WorldStateMargin/WorldStateBox"]
+[node name="KeyLabel" type="Label" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox/WorldStatePanel/WorldStateMargin/WorldStateBox"]
 text = "Bedroom Key Taken: No"
 
-[node name="ShedLabel" type="Label" parent="Layout/Columns/WorldColumn/WorldStatePanel/WorldStateMargin/WorldStateBox"]
+[node name="ShedLabel" type="Label" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox/WorldStatePanel/WorldStateMargin/WorldStateBox"]
 text = "Shed Unlocked: No"
 
-[node name="TriggerLabel" type="Label" parent="Layout/Columns/WorldColumn/WorldStatePanel/WorldStateMargin/WorldStateBox"]
+[node name="TriggerLabel" type="Label" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox/WorldStatePanel/WorldStateMargin/WorldStateBox"]
 text = "Collapse Triggered By: Nobody Yet"
 
-[node name="KeyHolderLabel" type="Label" parent="Layout/Columns/WorldColumn/WorldStatePanel/WorldStateMargin/WorldStateBox"]
+[node name="KeyHolderLabel" type="Label" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox/WorldStatePanel/WorldStateMargin/WorldStateBox"]
 text = "Key Holder: Nobody"
 
-[node name="LinkLabel" type="Label" parent="Layout/Columns/WorldColumn/WorldStatePanel/WorldStateMargin/WorldStateBox"]
+[node name="LinkLabel" type="Label" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox/WorldStatePanel/WorldStateMargin/WorldStateBox"]
 text = "Radio Link: Clear"
 
-[node name="ReconvergedLabel" type="Label" parent="Layout/Columns/WorldColumn/WorldStatePanel/WorldStateMargin/WorldStateBox"]
+[node name="ReconvergedLabel" type="Label" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox/WorldStatePanel/WorldStateMargin/WorldStateBox"]
 text = "Group State: Together Upstairs"
 
-[node name="RunButtons" type="HBoxContainer" parent="Layout/Columns/WorldColumn"]
-layout_mode = 2
-theme_override_constants/separation = 12
+[node name="RunButtons" type="HBoxContainer" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox"]
+theme_override_constants/separation = 8
 
-[node name="ResetButton" type="Button" parent="Layout/Columns/WorldColumn/RunButtons"]
-layout_mode = 2
+[node name="ResetButton" type="Button" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox/RunButtons"]
 text = "Reset Run"
 
-[node name="SaveButton" type="Button" parent="Layout/Columns/WorldColumn/RunButtons"]
-layout_mode = 2
+[node name="SaveButton" type="Button" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox/RunButtons"]
 text = "Save JSON"
 
-[node name="LoadButton" type="Button" parent="Layout/Columns/WorldColumn/RunButtons"]
-layout_mode = 2
+[node name="LoadButton" type="Button" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox/RunButtons"]
 text = "Load JSON"
 
-[node name="InstructionsPanel" type="PanelContainer" parent="Layout/Columns/WorldColumn"]
-layout_mode = 2
+[node name="InstructionsPanel" type="PanelContainer" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox"]
 
-[node name="InstructionsMargin" type="MarginContainer" parent="Layout/Columns/WorldColumn/InstructionsPanel"]
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 16
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 16
+[node name="InstructionsMargin" type="MarginContainer" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox/InstructionsPanel"]
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
 
-[node name="InstructionsLabel" type="Label" parent="Layout/Columns/WorldColumn/InstructionsPanel/InstructionsMargin"]
+[node name="InstructionsLabel" type="Label" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox/InstructionsPanel/InstructionsMargin"]
 autowrap_mode = 3
-text = "Run the same prototype loop, but with stronger radio feedback, event narration, and a more dramatic collapse presentation."
+text = "The world is now spatial. Use the panel only as a fallback harness while testing the same collapse, split, reconvergence, and optional shed loop."
 
-[node name="PlayersColumn" type="VBoxContainer" parent="Layout/Columns"]
-layout_mode = 2
-size_flags_horizontal = 3
+[node name="Player1Panel" type="PanelContainer" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox"]
 
-[node name="PlayersRow" type="HBoxContainer" parent="Layout/Columns/PlayersColumn"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 24
+[node name="Player1Margin" type="MarginContainer" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox/Player1Panel"]
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
 
-[node name="Player1Panel" type="PanelContainer" parent="Layout/Columns/PlayersColumn/PlayersRow"]
-layout_mode = 2
-size_flags_horizontal = 3
+[node name="Player1Box" type="VBoxContainer" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox/Player1Panel/Player1Margin"]
+theme_override_constants/separation = 8
 
-[node name="Player1Margin" type="MarginContainer" parent="Layout/Columns/PlayersColumn/PlayersRow/Player1Panel"]
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 16
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 16
-
-[node name="Player1Box" type="VBoxContainer" parent="Layout/Columns/PlayersColumn/PlayersRow/Player1Panel/Player1Margin"]
-theme_override_constants/separation = 10
-
-[node name="Player1Title" type="Label" parent="Layout/Columns/PlayersColumn/PlayersRow/Player1Panel/Player1Margin/Player1Box"]
+[node name="Player1Title" type="Label" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox/Player1Panel/Player1Margin/Player1Box"]
 text = "PLAYER 1"
 
-[node name="Player1LocationLabel" type="Label" parent="Layout/Columns/PlayersColumn/PlayersRow/Player1Panel/Player1Margin/Player1Box"]
+[node name="Player1LocationLabel" type="Label" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox/Player1Panel/Player1Margin/Player1Box"]
 text = "Location: Upstairs Room"
 
-[node name="Player1InventoryLabel" type="Label" parent="Layout/Columns/PlayersColumn/PlayersRow/Player1Panel/Player1Margin/Player1Box"]
+[node name="Player1InventoryLabel" type="Label" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox/Player1Panel/Player1Margin/Player1Box"]
 text = "Inventory: Empty"
 
-[node name="Player1StatusLabel" type="Label" parent="Layout/Columns/PlayersColumn/PlayersRow/Player1Panel/Player1Margin/Player1Box"]
+[node name="Player1StatusLabel" type="Label" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox/Player1Panel/Player1Margin/Player1Box"]
 text = "Status: Waiting upstairs"
 
-[node name="Player1Preview" type="PanelContainer" parent="Layout/Columns/PlayersColumn/PlayersRow/Player1Panel/Player1Margin/Player1Box"]
-custom_minimum_size = Vector2(0, 220)
-size_flags_horizontal = 3
+[node name="Player1Actions" type="VBoxContainer" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox/Player1Panel/Player1Margin/Player1Box"]
+theme_override_constants/separation = 6
 
-[node name="Player1Actions" type="VBoxContainer" parent="Layout/Columns/PlayersColumn/PlayersRow/Player1Panel/Player1Margin/Player1Box"]
-theme_override_constants/separation = 8
-
-[node name="P1HallwayButton" type="Button" parent="Layout/Columns/PlayersColumn/PlayersRow/Player1Panel/Player1Margin/Player1Box/Player1Actions"]
+[node name="P1HallwayButton" type="Button" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox/Player1Panel/Player1Margin/Player1Box/Player1Actions"]
 text = "Move To Hallway"
 
-[node name="P1CrossButton" type="Button" parent="Layout/Columns/PlayersColumn/PlayersRow/Player1Panel/Player1Margin/Player1Box/Player1Actions"]
+[node name="P1CrossButton" type="Button" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox/Player1Panel/Player1Margin/Player1Box/Player1Actions"]
 text = "Cross Hallway"
 
-[node name="P1BedroomButton" type="Button" parent="Layout/Columns/PlayersColumn/PlayersRow/Player1Panel/Player1Margin/Player1Box/Player1Actions"]
+[node name="P1BedroomButton" type="Button" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox/Player1Panel/Player1Margin/Player1Box/Player1Actions"]
 text = "Route To Bedroom"
 
-[node name="P1KeyButton" type="Button" parent="Layout/Columns/PlayersColumn/PlayersRow/Player1Panel/Player1Margin/Player1Box/Player1Actions"]
+[node name="P1KeyButton" type="Button" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox/Player1Panel/Player1Margin/Player1Box/Player1Actions"]
 text = "Take Bedroom Key"
 
-[node name="P1EscapeButton" type="Button" parent="Layout/Columns/PlayersColumn/PlayersRow/Player1Panel/Player1Margin/Player1Box/Player1Actions"]
+[node name="P1EscapeButton" type="Button" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox/Player1Panel/Player1Margin/Player1Box/Player1Actions"]
 text = "Escape Bedroom Window"
 
-[node name="P1DownstairsButton" type="Button" parent="Layout/Columns/PlayersColumn/PlayersRow/Player1Panel/Player1Margin/Player1Box/Player1Actions"]
+[node name="P1DownstairsButton" type="Button" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox/Player1Panel/Player1Margin/Player1Box/Player1Actions"]
 text = "Leave Downstairs"
 
-[node name="P1WoodsButton" type="Button" parent="Layout/Columns/PlayersColumn/PlayersRow/Player1Panel/Player1Margin/Player1Box/Player1Actions"]
+[node name="P1WoodsButton" type="Button" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox/Player1Panel/Player1Margin/Player1Box/Player1Actions"]
 text = "Go To Woods Edge"
 
-[node name="P1ShedButton" type="Button" parent="Layout/Columns/PlayersColumn/PlayersRow/Player1Panel/Player1Margin/Player1Box/Player1Actions"]
+[node name="P1ShedButton" type="Button" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox/Player1Panel/Player1Margin/Player1Box/Player1Actions"]
 text = "Try Shed Door"
 
-[node name="Player2Panel" type="PanelContainer" parent="Layout/Columns/PlayersColumn/PlayersRow"]
-layout_mode = 2
-size_flags_horizontal = 3
+[node name="Player2Panel" type="PanelContainer" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox"]
 
-[node name="Player2Margin" type="MarginContainer" parent="Layout/Columns/PlayersColumn/PlayersRow/Player2Panel"]
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 16
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 16
+[node name="Player2Margin" type="MarginContainer" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox/Player2Panel"]
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
 
-[node name="Player2Box" type="VBoxContainer" parent="Layout/Columns/PlayersColumn/PlayersRow/Player2Panel/Player2Margin"]
-theme_override_constants/separation = 10
-
-[node name="Player2Title" type="Label" parent="Layout/Columns/PlayersColumn/PlayersRow/Player2Panel/Player2Margin/Player2Box"]
-text = "PLAYER 2"
-
-[node name="Player2LocationLabel" type="Label" parent="Layout/Columns/PlayersColumn/PlayersRow/Player2Panel/Player2Margin/Player2Box"]
-text = "Location: Upstairs Room"
-
-[node name="Player2InventoryLabel" type="Label" parent="Layout/Columns/PlayersColumn/PlayersRow/Player2Panel/Player2Margin/Player2Box"]
-text = "Inventory: Empty"
-
-[node name="Player2StatusLabel" type="Label" parent="Layout/Columns/PlayersColumn/PlayersRow/Player2Panel/Player2Margin/Player2Box"]
-text = "Status: Waiting upstairs"
-
-[node name="Player2Preview" type="PanelContainer" parent="Layout/Columns/PlayersColumn/PlayersRow/Player2Panel/Player2Margin/Player2Box"]
-custom_minimum_size = Vector2(0, 220)
-size_flags_horizontal = 3
-
-[node name="Player2Actions" type="VBoxContainer" parent="Layout/Columns/PlayersColumn/PlayersRow/Player2Panel/Player2Margin/Player2Box"]
+[node name="Player2Box" type="VBoxContainer" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox/Player2Panel/Player2Margin"]
 theme_override_constants/separation = 8
 
-[node name="P2HallwayButton" type="Button" parent="Layout/Columns/PlayersColumn/PlayersRow/Player2Panel/Player2Margin/Player2Box/Player2Actions"]
+[node name="Player2Title" type="Label" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox/Player2Panel/Player2Margin/Player2Box"]
+text = "PLAYER 2"
+
+[node name="Player2LocationLabel" type="Label" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox/Player2Panel/Player2Margin/Player2Box"]
+text = "Location: Upstairs Room"
+
+[node name="Player2InventoryLabel" type="Label" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox/Player2Panel/Player2Margin/Player2Box"]
+text = "Inventory: Empty"
+
+[node name="Player2StatusLabel" type="Label" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox/Player2Panel/Player2Margin/Player2Box"]
+text = "Status: Waiting upstairs"
+
+[node name="Player2Actions" type="VBoxContainer" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox/Player2Panel/Player2Margin/Player2Box"]
+theme_override_constants/separation = 6
+
+[node name="P2HallwayButton" type="Button" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox/Player2Panel/Player2Margin/Player2Box/Player2Actions"]
 text = "Move To Hallway"
 
-[node name="P2CrossButton" type="Button" parent="Layout/Columns/PlayersColumn/PlayersRow/Player2Panel/Player2Margin/Player2Box/Player2Actions"]
+[node name="P2CrossButton" type="Button" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox/Player2Panel/Player2Margin/Player2Box/Player2Actions"]
 text = "Cross Hallway"
 
-[node name="P2BedroomButton" type="Button" parent="Layout/Columns/PlayersColumn/PlayersRow/Player2Panel/Player2Margin/Player2Box/Player2Actions"]
+[node name="P2BedroomButton" type="Button" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox/Player2Panel/Player2Margin/Player2Box/Player2Actions"]
 text = "Route To Bedroom"
 
-[node name="P2KeyButton" type="Button" parent="Layout/Columns/PlayersColumn/PlayersRow/Player2Panel/Player2Margin/Player2Box/Player2Actions"]
+[node name="P2KeyButton" type="Button" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox/Player2Panel/Player2Margin/Player2Box/Player2Actions"]
 text = "Take Bedroom Key"
 
-[node name="P2EscapeButton" type="Button" parent="Layout/Columns/PlayersColumn/PlayersRow/Player2Panel/Player2Margin/Player2Box/Player2Actions"]
+[node name="P2EscapeButton" type="Button" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox/Player2Panel/Player2Margin/Player2Box/Player2Actions"]
 text = "Escape Bedroom Window"
 
-[node name="P2DownstairsButton" type="Button" parent="Layout/Columns/PlayersColumn/PlayersRow/Player2Panel/Player2Margin/Player2Box/Player2Actions"]
+[node name="P2DownstairsButton" type="Button" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox/Player2Panel/Player2Margin/Player2Box/Player2Actions"]
 text = "Leave Downstairs"
 
-[node name="P2WoodsButton" type="Button" parent="Layout/Columns/PlayersColumn/PlayersRow/Player2Panel/Player2Margin/Player2Box/Player2Actions"]
+[node name="P2WoodsButton" type="Button" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox/Player2Panel/Player2Margin/Player2Box/Player2Actions"]
 text = "Go To Woods Edge"
 
-[node name="P2ShedButton" type="Button" parent="Layout/Columns/PlayersColumn/PlayersRow/Player2Panel/Player2Margin/Player2Box/Player2Actions"]
+[node name="P2ShedButton" type="Button" parent="DebugPanel/ScrollContainer/DebugMargin/DebugVBox/Player2Panel/Player2Margin/Player2Box/Player2Actions"]
 text = "Try Shed Door"
 
 [node name="SessionManager" type="Node" parent="."]
@@ -276,17 +361,24 @@ script = ExtResource("3")
 [node name="AudioManager" type="Node" parent="."]
 script = ExtResource("4")
 
-[node name="Overlay" type="CanvasLayer" parent="."]
-
-[node name="UIRoot" type="Control" parent="Overlay"]
-layout_mode = 3
+[node name="Overlay" type="Control" parent="."]
+layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_right = 0.0
 offset_bottom = 0.0
 mouse_filter = 2
+
+[node name="UIRoot" type="Control" parent="Overlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 0.0
+offset_bottom = 0.0
 script = ExtResource("5")
+mouse_filter = 2
 
 [node name="InteractionPrompt" parent="Overlay/UIRoot" instance=ExtResource("6")]
 

@@ -16,8 +16,12 @@ func interact(player_id: String) -> bool:
 		return false
 
 	match target_location:
+		"UpstairsHallway":
+			return SceneRouter.move_player_to_hallway(player_id)
 		"Outside":
 			return _route_to_outside(player_id)
+		"WoodsEdge":
+			return SceneRouter.toggle_woods_edge(player_id)
 		"Shed":
 			var entered := SceneRouter.interact_with_shed(player_id)
 			if entered and GameState.shed_unlocked:

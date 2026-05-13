@@ -14,7 +14,10 @@ var _last_reconvergence_signature: String = ""
 
 
 func get_scene_path_for_location(location: String) -> String:
-	return LOCATION_SCENES.get(location, LOCATION_SCENES["Outside"])
+	if LOCATION_SCENES.has(location):
+		return str(LOCATION_SCENES[location])
+
+	return str(LOCATION_SCENES["Outside"])
 
 
 func start_new_run() -> void:

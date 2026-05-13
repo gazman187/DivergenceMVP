@@ -1,41 +1,109 @@
-[gd_scene format=3]
+[gd_scene load_steps=7 format=3]
 
-[node name="UpstairsRoom" type="PanelContainer"]
-custom_minimum_size = Vector2(0, 200)
+[ext_resource type="Script" path="res://scripts/world/GreyboxLocation.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/world/Door.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/world/WorldInteractionZone.gd" id="3"]
 
-[node name="Background" type="ColorRect" parent="."]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_right = 0.0
-offset_bottom = 0.0
+[sub_resource type="RectangleShape2D" id="1"]
+size = Vector2(300, 12)
+
+[sub_resource type="RectangleShape2D" id="2"]
+size = Vector2(12, 220)
+
+[sub_resource type="RectangleShape2D" id="3"]
+size = Vector2(84, 64)
+
+[node name="UpstairsRoom" type="Node2D"]
+script = ExtResource("1")
+location_id = "UpstairsRoom"
+
+[node name="RoomFill" type="ColorRect" parent="."]
+offset_right = 300.0
+offset_bottom = 220.0
 color = Color(0.19, 0.16, 0.14, 1)
 
-[node name="Glow" type="ColorRect" parent="."]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 12.0
-offset_top = 12.0
-offset_right = -12.0
-offset_bottom = -70.0
+[node name="WarmGlow" type="ColorRect" parent="."]
+offset_left = 18.0
+offset_top = 18.0
+offset_right = 282.0
+offset_bottom = 150.0
 color = Color(0.56, 0.38, 0.2, 0.14)
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
-theme_override_constants/margin_left = 18
-theme_override_constants/margin_top = 18
-theme_override_constants/margin_right = 18
-theme_override_constants/margin_bottom = 18
+[node name="TableBlock" type="ColorRect" parent="."]
+offset_left = 42.0
+offset_top = 102.0
+offset_right = 132.0
+offset_bottom = 156.0
+color = Color(0.25, 0.2, 0.18, 1)
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
-theme_override_constants/separation = 8
+[node name="WardrobeBlock" type="ColorRect" parent="."]
+offset_left = 214.0
+offset_top = 34.0
+offset_right = 260.0
+offset_bottom = 110.0
+color = Color(0.26, 0.2, 0.16, 1)
 
-[node name="Title" type="Label" parent="MarginContainer/VBoxContainer"]
+[node name="Title" type="Label" parent="."]
+offset_left = 18.0
+offset_top = 16.0
+offset_right = 164.0
+offset_bottom = 38.0
 text = "UPSTAIRS ROOM"
 
-[node name="Mood" type="Label" parent="MarginContainer/VBoxContainer"]
-text = "Warm lamp glow. Quiet floorboards. Last calm before the split."
-
-[node name="Description" type="Label" parent="MarginContainer/VBoxContainer"]
+[node name="Description" type="Label" parent="."]
+offset_left = 18.0
+offset_top = 42.0
+offset_right = 246.0
+offset_bottom = 76.0
 autowrap_mode = 3
-text = "Both players begin together here before anyone tests the weak hallway."
+text = "Both players begin here before anyone tests the hallway."
+
+[node name="Player1Spawn" type="Marker2D" parent="."]
+position = Vector2(92, 178)
+
+[node name="Player2Spawn" type="Marker2D" parent="."]
+position = Vector2(132, 178)
+
+[node name="Walls" type="StaticBody2D" parent="."]
+collision_layer = 1
+collision_mask = 1
+
+[node name="TopWall" type="CollisionShape2D" parent="Walls"]
+position = Vector2(150, 6)
+shape = SubResource("1")
+
+[node name="BottomWall" type="CollisionShape2D" parent="Walls"]
+position = Vector2(150, 214)
+shape = SubResource("1")
+
+[node name="LeftWall" type="CollisionShape2D" parent="Walls"]
+position = Vector2(6, 110)
+shape = SubResource("2")
+
+[node name="RightWall" type="CollisionShape2D" parent="Walls"]
+position = Vector2(294, 110)
+shape = SubResource("2")
+
+[node name="HallwayDoorInteractable" type="Node" parent="."]
+script = ExtResource("2")
+interaction_label = "Step into the hallway"
+target_location = "UpstairsHallway"
+
+[node name="HallwayDoorZone" type="Area2D" parent="."]
+script = ExtResource("3")
+collision_layer = 2
+collision_mask = 0
+required_location = "UpstairsRoom"
+zone_label = "Move into the hallway"
+interactable_path = NodePath("../HallwayDoorInteractable")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HallwayDoorZone"]
+position = Vector2(240, 154)
+shape = SubResource("3")
+
+[node name="Highlight" type="ColorRect" parent="HallwayDoorZone"]
+offset_left = 198.0
+offset_top = 122.0
+offset_right = 282.0
+offset_bottom = 186.0
+color = Color(0.28, 0.46, 0.58, 0.12)

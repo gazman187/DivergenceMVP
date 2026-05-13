@@ -1,54 +1,144 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=9 format=3]
 
-[ext_resource type="Script" path="res://scripts/world/ItemPickup.gd" id="1"]
-[ext_resource type="Script" path="res://scripts/world/Door.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/world/GreyboxLocation.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/world/ItemPickup.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/world/Door.gd" id="3"]
+[ext_resource type="Script" path="res://scripts/world/WorldInteractionZone.gd" id="4"]
 
-[node name="Bedroom" type="PanelContainer"]
-custom_minimum_size = Vector2(0, 200)
+[sub_resource type="RectangleShape2D" id="1"]
+size = Vector2(320, 12)
 
-[node name="Background" type="ColorRect" parent="."]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_right = 0.0
-offset_bottom = 0.0
-color = Color(0.18, 0.14, 0.18, 1)
+[sub_resource type="RectangleShape2D" id="2"]
+size = Vector2(12, 220)
+
+[sub_resource type="RectangleShape2D" id="3"]
+size = Vector2(68, 54)
+
+[sub_resource type="RectangleShape2D" id="4"]
+size = Vector2(74, 58)
+
+[node name="Bedroom" type="Node2D"]
+script = ExtResource("1")
+location_id = "Bedroom"
+
+[node name="RoomFill" type="ColorRect" parent="."]
+offset_right = 320.0
+offset_bottom = 220.0
+color = Color(0.16, 0.12, 0.18, 1)
 
 [node name="WindowGlow" type="ColorRect" parent="."]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 220.0
-offset_top = 10.0
-offset_right = -10.0
-offset_bottom = -20.0
-color = Color(0.35, 0.44, 0.54, 0.16)
+offset_left = 208.0
+offset_top = 16.0
+offset_right = 306.0
+offset_bottom = 204.0
+color = Color(0.32, 0.42, 0.54, 0.18)
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
-theme_override_constants/margin_left = 18
-theme_override_constants/margin_top = 18
-theme_override_constants/margin_right = 18
-theme_override_constants/margin_bottom = 18
+[node name="BedBlock" type="ColorRect" parent="."]
+offset_left = 18.0
+offset_top = 126.0
+offset_right = 124.0
+offset_bottom = 188.0
+color = Color(0.24, 0.18, 0.22, 1)
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
-theme_override_constants/separation = 8
+[node name="WardrobeBlock" type="ColorRect" parent="."]
+offset_left = 136.0
+offset_top = 42.0
+offset_right = 174.0
+offset_bottom = 126.0
+color = Color(0.22, 0.18, 0.2, 1)
 
-[node name="Title" type="Label" parent="MarginContainer/VBoxContainer"]
+[node name="BedroomKeyProp" type="ColorRect" parent="."]
+offset_left = 74.0
+offset_top = 86.0
+offset_right = 100.0
+offset_bottom = 98.0
+color = Color(0.82, 0.72, 0.42, 1)
+
+[node name="Title" type="Label" parent="."]
+offset_left = 18.0
+offset_top = 16.0
+offset_right = 156.0
+offset_bottom = 38.0
 text = "BEDROOM"
 
-[node name="Mood" type="Label" parent="MarginContainer/VBoxContainer"]
-text = "Dust, moonlight, and a single way back out."
-
-[node name="Description" type="Label" parent="MarginContainer/VBoxContainer"]
+[node name="Description" type="Label" parent="."]
+offset_left = 18.0
+offset_top = 42.0
+offset_right = 298.0
+offset_bottom = 76.0
 autowrap_mode = 3
-text = "The blocked player searches this room for the key, then escapes through the window and down the drainpipe."
+text = "Search the room, find the key, and escape down the drainpipe."
 
-[node name="BedroomKey" type="Node" parent="."]
-script = ExtResource("1")
+[node name="Player1Spawn" type="Marker2D" parent="."]
+position = Vector2(72, 152)
+
+[node name="Player2Spawn" type="Marker2D" parent="."]
+position = Vector2(108, 152)
+
+[node name="Walls" type="StaticBody2D" parent="."]
+collision_layer = 1
+collision_mask = 1
+
+[node name="TopWall" type="CollisionShape2D" parent="Walls"]
+position = Vector2(160, 6)
+shape = SubResource("1")
+
+[node name="BottomWall" type="CollisionShape2D" parent="Walls"]
+position = Vector2(160, 214)
+shape = SubResource("1")
+
+[node name="LeftWall" type="CollisionShape2D" parent="Walls"]
+position = Vector2(6, 110)
+shape = SubResource("2")
+
+[node name="RightWall" type="CollisionShape2D" parent="Walls"]
+position = Vector2(314, 110)
+shape = SubResource("2")
+
+[node name="BedroomKeyInteractable" type="Node" parent="."]
+script = ExtResource("2")
 interaction_label = "Take bedroom key"
 item_id = "bedroom_key"
 
-[node name="WindowExit" type="Node" parent="."]
-script = ExtResource("2")
+[node name="WindowExitInteractable" type="Node" parent="."]
+script = ExtResource("3")
 interaction_label = "Escape via window and drainpipe"
 target_location = "Outside"
+
+[node name="BedroomKeyZone" type="Area2D" parent="."]
+script = ExtResource("4")
+collision_layer = 2
+collision_mask = 0
+required_location = "Bedroom"
+zone_label = "Take the bedroom key"
+interactable_path = NodePath("../BedroomKeyInteractable")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BedroomKeyZone"]
+position = Vector2(86, 92)
+shape = SubResource("3")
+
+[node name="Highlight" type="ColorRect" parent="BedroomKeyZone"]
+offset_left = 52.0
+offset_top = 64.0
+offset_right = 120.0
+offset_bottom = 118.0
+color = Color(0.28, 0.46, 0.58, 0.12)
+
+[node name="WindowExitZone" type="Area2D" parent="."]
+script = ExtResource("4")
+collision_layer = 2
+collision_mask = 0
+required_location = "Bedroom"
+zone_label = "Climb out the window"
+interactable_path = NodePath("../WindowExitInteractable")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WindowExitZone"]
+position = Vector2(258, 110)
+shape = SubResource("4")
+
+[node name="Highlight" type="ColorRect" parent="WindowExitZone"]
+offset_left = 222.0
+offset_top = 80.0
+offset_right = 296.0
+offset_bottom = 138.0
+color = Color(0.28, 0.46, 0.58, 0.12)
