@@ -87,7 +87,7 @@ func _sync_ambience() -> void:
 
 
 func _sync_radio_profile(status: String) -> void:
-	var target := RADIO_STATIC_PROFILES.get(status, "dead_air")
+	var target: String = RADIO_STATIC_PROFILES[status] if RADIO_STATIC_PROFILES.has(status) else "dead_air"
 	if target == current_radio_profile:
 		return
 
@@ -103,12 +103,12 @@ func _sync_connection_target(profile: Dictionary, instant: bool) -> void:
 	var previous_target_state := target_signal_state
 	var previous_target_flavor := target_signal_flavor
 	var previous_target_relationship := target_relationship
-	target_connection_strength = float(profile.get("strength", 0.0))
-	target_voice_volume = float(profile.get("voice_volume", target_connection_strength))
-	target_environment_bleed = float(profile.get("environment_bleed", 0.0))
-	target_signal_state = str(profile.get("state", "Lost"))
-	target_signal_flavor = str(profile.get("flavor", ""))
-	target_relationship = str(profile.get("relationship", ""))
+	target_connection_strength = _profile_float(profile, "strength", 0.0)
+	target_voice_volume = _profile_float(profile, "voice_volume", target_connection_strength)
+	target_environment_bleed = _profile_float(profile, "environment_bleed", 0.0)
+	target_signal_state = _profile_string(profile, "state", "Lost")
+	target_signal_flavor = _profile_string(profile, "flavor", "")
+	target_relationship = _profile_string(profile, "relationship", "")
 
 	if not instant:
 		var target_only_changed := previous_target_state != target_signal_state \
@@ -257,3 +257,17 @@ func _register_one_shot(event_name: String) -> void:
 	recent_one_shots.append(event_name)
 	if recent_one_shots.size() > 8:
 		recent_one_shots.pop_front()
+
+
+func _profile_float(profile: Dictionary, key: String, default_value: float) -> float:
+	if not profile.has(key):
+		return default_value
+
+	return float(profile[key])
+
+
+func _profile_string(profile: Dictionary, key: String, default_value: String) -> String:
+	if not profile.has(key):
+		return default_value
+
+	return str(profile[key])

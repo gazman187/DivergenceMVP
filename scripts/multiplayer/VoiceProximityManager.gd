@@ -10,9 +10,9 @@ const NO_SIGNAL_STRENGTH := 0.0
 const LOCATION_GRAPH := {
 	"UpstairsRoom": ["UpstairsHallway", "Bedroom"],
 	"UpstairsHallway": ["UpstairsRoom", "Bedroom"],
-	"Bedroom": ["UpstairsRoom", "UpstairsHallway", "Outside"],
+	"Bedroom": ["UpstairsRoom", "UpstairsHallway"],
 	"Downstairs": ["Outside"],
-	"Outside": ["Downstairs", "Bedroom", "WoodsEdge", "Shed"],
+	"Outside": ["Downstairs", "WoodsEdge", "Shed"],
 	"WoodsEdge": ["Outside"],
 	"Shed": ["Outside"]
 }
@@ -23,16 +23,18 @@ const STRENGTH_OVERRIDES := {
 }
 
 static func calculate_status(location_one: String, location_two: String, floor_collapsed: bool) -> String:
-	return str(calculate_profile(location_one, location_two, floor_collapsed).get("state", "Lost"))
+	var profile: Dictionary = calculate_profile(location_one, location_two, floor_collapsed)
+	var state: String = str(profile["state"])
+	return state
 
 
 static func calculate_profile(location_one: String, location_two: String, floor_collapsed: bool) -> Dictionary:
-	var distance := _distance_between(location_one, location_two)
-	var strength := _resolve_strength(location_one, location_two, floor_collapsed, distance)
-	var state := state_from_strength(strength)
-	var relationship := _describe_relationship(location_one, location_two, floor_collapsed, distance, strength)
-	var flavor := _describe_flavor(location_one, location_two, floor_collapsed, distance, strength)
-	var environment_bleed := _resolve_environment_bleed(distance, strength, relationship)
+	var distance: int = _distance_between(location_one, location_two)
+	var strength: float = _resolve_strength(location_one, location_two, floor_collapsed, distance)
+	var state: String = state_from_strength(strength)
+	var relationship: String = _describe_relationship(location_one, location_two, floor_collapsed, distance, strength)
+	var flavor: String = _describe_flavor(location_one, location_two, floor_collapsed, distance, strength)
+	var environment_bleed: float = _resolve_environment_bleed(distance, strength, relationship)
 
 	return {
 		"state": state,
@@ -68,10 +70,11 @@ static func _distance_between(start: String, target: String) -> int:
 
 	while not frontier.is_empty():
 		var current: Dictionary = frontier.pop_front()
-		var location := str(current.get("location", ""))
-		var distance := int(current.get("distance", 0))
+		var location: String = str(current["location"])
+		var distance: int = int(current["distance"])
 
-		for neighbor in LOCATION_GRAPH.get(location, []):
+		var neighbors: Array = LOCATION_GRAPH[location] if LOCATION_GRAPH.has(location) else []
+		for neighbor in neighbors:
 			var neighbor_name := str(neighbor)
 			if visited.has(neighbor_name):
 				continue
@@ -92,7 +95,7 @@ static func _resolve_strength(location_one: String, location_two: String, floor_
 	if location_one == location_two:
 		return SAME_ROOM_STRENGTH
 
-	var pair_key := _pair_key(location_one, location_two)
+	var pair_key: String = _pair_key(location_one, location_two)
 	if STRENGTH_OVERRIDES.has(pair_key):
 		return float(STRENGTH_OVERRIDES[pair_key])
 

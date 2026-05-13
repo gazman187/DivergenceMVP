@@ -77,7 +77,7 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
-	var style: Dictionary = RADIO_STYLES.get(_radio_status, RADIO_STYLES["Lost"])
+	var style: Dictionary = _radio_style_for_status(_radio_status)
 	_radio_static_line.modulate.a = float(style["static"]) + randf_range(0.0, 0.08)
 	_radio_static_line.position.y = 22.0 + randf_range(-2.0, 2.0)
 	_radio_glow.modulate.a = (0.05 + (_connection_strength * 0.10)) + randf_range(0.0, 0.04)
@@ -97,10 +97,10 @@ func _on_radio_status_changed(status: String) -> void:
 
 
 func _on_radio_connection_changed(snapshot: Dictionary) -> void:
-	_connection_strength = float(snapshot.get("strength", 0.0))
+	_connection_strength = _snapshot_float(snapshot, "strength", 0.0)
 	var connection_percent := int(round(_connection_strength * 100.0))
 	_radio_connection_value.text = "%d%%" % connection_percent
-	_radio_flavor.text = str(snapshot.get("flavor", ""))
+	_radio_flavor.text = _snapshot_string(snapshot, "flavor", "")
 	_radio_panel.modulate.a = 0.72 + (_connection_strength * 0.28)
 	_radio_connection_value.modulate = _radio_value.modulate
 
@@ -146,7 +146,7 @@ func _show_collapse_sequence():
 
 func _apply_radio_status(status: String, animate: bool) -> void:
 	_radio_status = status
-	var style: Dictionary = RADIO_STYLES.get(status, RADIO_STYLES["Lost"])
+	var style: Dictionary = _radio_style_for_status(status)
 	var active_bars := int(style["bars"])
 	var accent: Color = style["color"]
 
@@ -200,6 +200,28 @@ func _tone_prefix(tone: String) -> String:
 			return "TRACE  //"
 		_:
 			return "SYSTEM //"
+
+
+func _radio_style_for_status(status: String) -> Dictionary:
+	if RADIO_STYLES.has(status):
+		return RADIO_STYLES[status]
+
+	return RADIO_STYLES["Lost"]
+
+
+func _snapshot_float(snapshot: Dictionary, key: String, default_value: float) -> float:
+	if not snapshot.has(key):
+		return default_value
+
+	return float(snapshot[key])
+
+
+func _snapshot_string(snapshot: Dictionary, key: String, default_value: String) -> String:
+	if not snapshot.has(key):
+		return default_value
+
+	return str(snapshot[key])
+
 
 func _pulse_prompt() -> void:
 	var tween := create_tween()

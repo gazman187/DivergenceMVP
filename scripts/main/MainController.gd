@@ -125,9 +125,11 @@ func _refresh_view() -> void:
 	_shed_label.text = "Shed Unlocked: %s" % _format_bool(GameState.shed_unlocked)
 	_trigger_label.text = "Collapse Triggered By: %s" % _format_trigger_name()
 	_key_holder_label.text = "Key Holder: %s" % _key_holder_text()
+	var radio_state: String = str(radio_profile["state"])
+	var radio_strength: float = float(radio_profile["strength"])
 	_link_label.text = "Radio Link: %s / %d%%" % [
-		str(radio_profile.get("state", "Lost")),
-		int(round(float(radio_profile.get("strength", 0.0)) * 100.0))
+		radio_state,
+		int(round(radio_strength * 100.0))
 	]
 	_reconverged_label.text = "Group State: %s" % _group_state_text()
 
@@ -163,7 +165,9 @@ func _update_preview(player_id: String, location: String) -> void:
 	preview_holder.add_child(preview)
 	_preview_nodes[player_id] = preview
 
-	var previous_location := str(_last_locations.get(player_id, ""))
+	var previous_location: String = ""
+	if _last_locations.has(player_id):
+		previous_location = str(_last_locations[player_id])
 	if previous_location != location:
 		preview.modulate = Color(1, 1, 1, 0)
 		var tween := create_tween()
@@ -241,7 +245,7 @@ func _on_shed_action(player_id: String) -> void:
 
 
 func _interact_or_fallback(player_id: String, node_name: String, fallback: Callable) -> void:
-	var preview: Node = _preview_nodes.get(player_id)
+	var preview: Node = _preview_nodes[player_id] if _preview_nodes.has(player_id) else null
 	if preview != null:
 		var interactable := preview.get_node_or_null(node_name)
 		if interactable != null and interactable.has_method("interact"):
@@ -267,7 +271,10 @@ func _format_trigger_name() -> String:
 
 
 func _pretty_location(location: String) -> String:
-	return LOCATION_LABELS.get(location, location)
+	if LOCATION_LABELS.has(location):
+		return str(LOCATION_LABELS[location])
+
+	return location
 
 
 func _pretty_inventory(inventory: Array[String]) -> String:
