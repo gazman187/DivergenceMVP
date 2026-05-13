@@ -6,7 +6,7 @@ anchor_top = 1.0
 anchor_bottom = 1.0
 offset_left = 24.0
 offset_top = -376.0
-offset_right = 432.0
+offset_right = 456.0
 offset_bottom = -148.0
 mouse_filter = 1
 
@@ -28,6 +28,7 @@ theme_override_constants/margin_right = 16
 theme_override_constants/margin_bottom = 14
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = 8
 
@@ -41,11 +42,26 @@ mouse_filter = 2
 
 [node name="FeedScroll" type="ScrollContainer" parent="MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 132)
+size_flags_horizontal = 3
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
-[node name="EventFeedEntries" type="Label" parent="MarginContainer/VBoxContainer/FeedScroll"]
+[node name="FeedContent" type="MarginContainer" parent="MarginContainer/VBoxContainer/FeedScroll"]
+custom_minimum_size = Vector2(388, 0)
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 8
+mouse_filter = 2
+
+[node name="EventFeedEntries" type="Label" parent="MarginContainer/VBoxContainer/FeedScroll/FeedContent"]
+size_flags_horizontal = 3
 size_flags_vertical = 3
 autowrap_mode = 3
+clip_text = false
+horizontal_alignment = 0
+text_overrun_behavior = 0
 text = "SYSTEM // Waiting for movement."
 mouse_filter = 2
