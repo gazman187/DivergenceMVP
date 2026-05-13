@@ -1,7 +1,7 @@
 extends Control
 class_name UIManager
 
-const MAX_FEED_LINES := 32
+const MAX_FEED_LINES := 18
 const RADIO_STYLES := {
 	"Clear": {
 		"bars": 4,
@@ -111,7 +111,7 @@ func _on_radio_connection_changed(snapshot: Dictionary) -> void:
 	var connection_percent: int = int(round(_connection_strength * 100.0))
 	_radio_connection_value.text = "%d%%" % connection_percent
 	_radio_flavor.text = _snapshot_string(snapshot, "flavor", "")
-	_radio_panel.modulate.a = 0.66 + ((_connection_strength + _reunion_relief) * 0.20)
+	_radio_panel.modulate.a = 0.58 + ((_connection_strength + _reunion_relief) * 0.18)
 	_radio_connection_value.modulate = _radio_value.modulate
 
 	var line_width: float = lerpf(48.0, 264.0, clampf(_connection_strength, 0.0, 1.0))
@@ -194,7 +194,7 @@ func _apply_radio_status(status: String, animate: bool) -> void:
 	_radio_glow.color = accent
 
 	for index in range(_radio_bars.size()):
-		var bar := _radio_bars[index]
+		var bar: ColorRect = _radio_bars[index] as ColorRect
 		bar.color = accent if index < active_bars else Color(0.21, 0.24, 0.28, 0.9)
 
 	if animate:

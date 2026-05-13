@@ -46,7 +46,7 @@ offset_left = 280.0
 offset_top = 120.0
 offset_right = -260.0
 offset_bottom = -120.0
-color = Color(0.18, 0.26, 0.3, 0.08)
+color = Color(0.18, 0.26, 0.3, 0.06)
 mouse_filter = 2
 
 [node name="WorldFrame" type="PanelContainer" parent="."]
@@ -83,7 +83,7 @@ z_index = 6
 [node name="WorldTopShade" type="ColorRect" parent="WorldFrame"]
 offset_right = 1120.0
 offset_bottom = 118.0
-color = Color(0.01, 0.02, 0.03, 0.32)
+color = Color(0.01, 0.02, 0.03, 0.22)
 mouse_filter = 2
 z_index = 7
 
@@ -91,14 +91,14 @@ z_index = 7
 offset_top = 642.0
 offset_right = 1120.0
 offset_bottom = 760.0
-color = Color(0.01, 0.02, 0.03, 0.36)
+color = Color(0.01, 0.02, 0.03, 0.24)
 mouse_filter = 2
 z_index = 7
 
 [node name="WorldLeftShade" type="ColorRect" parent="WorldFrame"]
 offset_right = 142.0
 offset_bottom = 760.0
-color = Color(0.01, 0.02, 0.03, 0.26)
+color = Color(0.01, 0.02, 0.03, 0.18)
 mouse_filter = 2
 z_index = 7
 
@@ -106,7 +106,7 @@ z_index = 7
 offset_left = 970.0
 offset_right = 1120.0
 offset_bottom = 760.0
-color = Color(0.01, 0.02, 0.03, 0.3)
+color = Color(0.01, 0.02, 0.03, 0.2)
 mouse_filter = 2
 z_index = 7
 
@@ -153,7 +153,7 @@ offset_left = 76.0
 offset_top = 204.0
 offset_right = 1046.0
 offset_bottom = 554.0
-color = Color(0.68, 0.72, 0.76, 0.03)
+color = Color(0.68, 0.72, 0.76, 0.02)
 mouse_filter = 2
 z_index = 8
 
@@ -190,6 +190,7 @@ offset_left = 44.0
 offset_top = 116.0
 offset_right = 404.0
 offset_bottom = 238.0
+modulate = Color(0.94, 0.96, 0.98, 0.92)
 mouse_filter = 2
 
 [node name="Panel" type="PanelContainer" parent="WorldHUD"]
@@ -217,19 +218,21 @@ text = "WASD or arrows to move. Press E near a highlighted zone. Tab switches pl
 
 [node name="DebugToggleButton" type="Button" parent="."]
 layout_mode = 0
-offset_left = 1368.0
+offset_left = 1408.0
 offset_top = 28.0
 offset_right = 1568.0
 offset_bottom = 60.0
-text = "Show Debug"
+modulate = Color(0.92, 0.94, 0.96, 0.78)
+text = "Debug Overlay"
 
 [node name="DebugPanel" type="PanelContainer" parent="."]
 visible = false
 layout_mode = 0
-offset_left = 1172.0
+offset_left = 1196.0
 offset_top = 76.0
 offset_right = 1576.0
 offset_bottom = 860.0
+modulate = Color(0.9, 0.92, 0.94, 0.94)
 
 [node name="ScrollContainer" type="ScrollContainer" parent="DebugPanel"]
 offset_right = 404.0

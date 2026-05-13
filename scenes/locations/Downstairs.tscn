@@ -22,42 +22,42 @@ post_collapse_camera_zoom = 1.34
 [node name="RoomFill" type="ColorRect" parent="."]
 offset_right = 280.0
 offset_bottom = 220.0
-color = Color(0.1, 0.1, 0.12, 1)
+color = Color(0.13, 0.13, 0.15, 1)
 
 [node name="CeilingShadow" type="ColorRect" parent="."]
 offset_left = 0.0
 offset_top = 0.0
 offset_right = 280.0
 offset_bottom = 44.0
-color = Color(0.02, 0.02, 0.03, 0.32)
+color = Color(0.02, 0.02, 0.03, 0.24)
 
 [node name="CollapsedEntryGlow" type="ColorRect" parent="."]
 offset_left = 34.0
 offset_top = 10.0
 offset_right = 154.0
 offset_bottom = 76.0
-color = Color(0.42, 0.34, 0.24, 0.12)
+color = Color(0.46, 0.38, 0.28, 0.16)
 
 [node name="DustWake" type="ColorRect" parent="."]
 offset_left = 18.0
 offset_top = 116.0
 offset_right = 262.0
 offset_bottom = 196.0
-color = Color(0.42, 0.38, 0.32, 0.12)
+color = Color(0.46, 0.42, 0.36, 0.14)
 
 [node name="OverheadDust" type="ColorRect" parent="."]
 offset_left = 88.0
 offset_top = 48.0
 offset_right = 214.0
 offset_bottom = 122.0
-color = Color(0.5, 0.46, 0.4, 0.08)
+color = Color(0.54, 0.5, 0.44, 0.1)
 
 [node name="DoorLightSlice" type="ColorRect" parent="."]
 offset_left = 208.0
 offset_top = 88.0
 offset_right = 272.0
 offset_bottom = 160.0
-color = Color(0.42, 0.46, 0.4, 0.06)
+color = Color(0.5, 0.56, 0.5, 0.12)
 
 [node name="BrokenTimber" type="ColorRect" parent="."]
 offset_left = 48.0
@@ -136,4 +136,4 @@ offset_left = 184.0
 offset_top = 92.0
 offset_right = 270.0
 offset_bottom = 156.0
-color = Color(0.28, 0.46, 0.58, 0.12)
+color = Color(0.32, 0.52, 0.64, 0.16)

@@ -337,11 +337,11 @@ func _initialize_world_presentation() -> void:
 	_camera_target_scale = _world_camera_rig.scale
 	_world_state_tint.color = Color(0.14, 0.18, 0.22, 0.0)
 	_world_relief_glow.color = Color(0.36, 0.42, 0.38, 0.0)
-	_world_top_shade.color = Color(0.01, 0.02, 0.03, 0.32)
-	_world_bottom_shade.color = Color(0.01, 0.02, 0.03, 0.36)
-	_world_left_shade.color = Color(0.01, 0.02, 0.03, 0.26)
-	_world_right_shade.color = Color(0.01, 0.02, 0.03, 0.30)
-	_world_grain_band.color = Color(0.68, 0.72, 0.76, 0.03)
+	_world_top_shade.color = Color(0.01, 0.02, 0.03, 0.22)
+	_world_bottom_shade.color = Color(0.01, 0.02, 0.03, 0.24)
+	_world_left_shade.color = Color(0.01, 0.02, 0.03, 0.18)
+	_world_right_shade.color = Color(0.01, 0.02, 0.03, 0.20)
+	_world_grain_band.color = Color(0.68, 0.72, 0.76, 0.02)
 
 
 func _update_camera_and_atmosphere(delta: float) -> void:
@@ -448,12 +448,12 @@ func _location_presence_color(location_id: String, active_location: String, othe
 		return Color(0.98, 0.99, 1.0, 0.94)
 
 	if location_id == other_location:
-		return Color(0.62, 0.66, 0.72, 0.56)
+		return Color(0.76, 0.8, 0.84, 0.68)
 
 	if _is_related_location(active_location, location_id):
-		return Color(0.46, 0.5, 0.56, 0.38)
+		return Color(0.58, 0.62, 0.68, 0.5)
 
-	return Color(0.22, 0.24, 0.28, 0.22)
+	return Color(0.34, 0.38, 0.42, 0.34)
 
 
 func _pawn_presence_color(player_id: String, active_location: String, together: bool) -> Color:
@@ -465,53 +465,53 @@ func _pawn_presence_color(player_id: String, active_location: String, together: 
 		return Color(0.9, 0.92, 0.96, 0.9)
 
 	if location == active_location:
-		return Color(0.72, 0.78, 0.86, 0.68)
+		return Color(0.8, 0.84, 0.9, 0.78)
 
-	return Color(0.42, 0.46, 0.52, 0.3)
+	return Color(0.56, 0.6, 0.66, 0.42)
 
 
 func _update_frame_atmosphere(active_location: String, delta: float) -> void:
 	var together: bool = GameState.player_1_location == GameState.player_2_location
 	var tint_target: Color = Color(0.14, 0.18, 0.22, 0.04)
-	var relief_target: Color = Color(0.36, 0.42, 0.38, 0.04)
-	var shade_alpha: float = 0.28
-	var grain_alpha: float = 0.03
+	var relief_target: Color = Color(0.36, 0.42, 0.38, 0.05)
+	var shade_alpha: float = 0.20
+	var grain_alpha: float = 0.02
 
 	if together and active_location == "Outside":
-		tint_target = Color(0.18, 0.22, 0.24, 0.03)
-		relief_target = Color(0.44, 0.5, 0.46, 0.14)
-		shade_alpha = 0.18
-		grain_alpha = 0.02
+		tint_target = Color(0.18, 0.22, 0.24, 0.025)
+		relief_target = Color(0.44, 0.5, 0.46, 0.16)
+		shade_alpha = 0.12
+		grain_alpha = 0.014
 	elif together:
-		tint_target = Color(0.22, 0.18, 0.14, 0.05)
-		relief_target = Color(0.46, 0.38, 0.26, 0.08)
-		shade_alpha = 0.24
+		tint_target = Color(0.22, 0.18, 0.14, 0.04)
+		relief_target = Color(0.46, 0.38, 0.26, 0.10)
+		shade_alpha = 0.18
 	elif active_location == "Bedroom":
-		tint_target = Color(0.12, 0.16, 0.24, 0.10)
-		relief_target = Color(0.24, 0.3, 0.42, 0.04)
-		shade_alpha = 0.38
-		grain_alpha = 0.035
+		tint_target = Color(0.12, 0.16, 0.24, 0.07)
+		relief_target = Color(0.24, 0.3, 0.42, 0.06)
+		shade_alpha = 0.24
+		grain_alpha = 0.026
 	elif active_location == "Downstairs" or active_location == "UpstairsHallway":
-		tint_target = Color(0.1, 0.14, 0.2, 0.11)
-		relief_target = Color(0.18, 0.24, 0.28, 0.03)
-		shade_alpha = 0.4
-		grain_alpha = 0.036
+		tint_target = Color(0.1, 0.14, 0.2, 0.08)
+		relief_target = Color(0.18, 0.24, 0.28, 0.05)
+		shade_alpha = 0.26
+		grain_alpha = 0.028
 	elif active_location == "WoodsEdge":
-		tint_target = Color(0.08, 0.14, 0.12, 0.08)
-		relief_target = Color(0.18, 0.3, 0.24, 0.05)
-		shade_alpha = 0.34
+		tint_target = Color(0.08, 0.14, 0.12, 0.06)
+		relief_target = Color(0.18, 0.3, 0.24, 0.07)
+		shade_alpha = 0.22
 	else:
-		tint_target = Color(0.12, 0.17, 0.22, 0.09)
-		relief_target = Color(0.24, 0.3, 0.34, 0.04)
-		shade_alpha = 0.34
+		tint_target = Color(0.12, 0.17, 0.22, 0.07)
+		relief_target = Color(0.24, 0.3, 0.34, 0.06)
+		shade_alpha = 0.22
 
 	var weight: float = clampf(delta * ATMOSPHERE_LERP_SPEED, 0.0, 1.0)
 	_world_state_tint.color = _world_state_tint.color.lerp(tint_target, weight)
 	_world_relief_glow.color = _world_relief_glow.color.lerp(relief_target, weight)
-	_world_top_shade.color = _world_top_shade.color.lerp(Color(0.01, 0.02, 0.03, shade_alpha + 0.06), weight)
-	_world_bottom_shade.color = _world_bottom_shade.color.lerp(Color(0.01, 0.02, 0.03, shade_alpha + 0.1), weight)
+	_world_top_shade.color = _world_top_shade.color.lerp(Color(0.01, 0.02, 0.03, shade_alpha + 0.04), weight)
+	_world_bottom_shade.color = _world_bottom_shade.color.lerp(Color(0.01, 0.02, 0.03, shade_alpha + 0.07), weight)
 	_world_left_shade.color = _world_left_shade.color.lerp(Color(0.01, 0.02, 0.03, shade_alpha), weight)
-	_world_right_shade.color = _world_right_shade.color.lerp(Color(0.01, 0.02, 0.03, shade_alpha + 0.04), weight)
+	_world_right_shade.color = _world_right_shade.color.lerp(Color(0.01, 0.02, 0.03, shade_alpha + 0.03), weight)
 	_world_grain_band.color = _world_grain_band.color.lerp(Color(0.68, 0.72, 0.76, grain_alpha), weight)
 
 
