@@ -1,7 +1,7 @@
 extends Control
 class_name UIManager
 
-const MAX_FEED_LINES := 7
+const MAX_FEED_LINES := 32
 const RADIO_STYLES := {
 	"Clear": {
 		"bars": 4,
@@ -31,7 +31,8 @@ const RADIO_STYLES := {
 
 @onready var _prompt_frame: PanelContainer = $InteractionPrompt
 @onready var _prompt_label: Label = $InteractionPrompt/MarginContainer/VBoxContainer/PromptText
-@onready var _event_feed_label: Label = $EventFeed/MarginContainer/VBoxContainer/EventFeedEntries
+@onready var _event_feed_scroll: ScrollContainer = $EventFeed/MarginContainer/VBoxContainer/FeedScroll
+@onready var _event_feed_label: Label = $EventFeed/MarginContainer/VBoxContainer/FeedScroll/EventFeedEntries
 @onready var _radio_panel: PanelContainer = $RadioStatus
 @onready var _radio_value: Label = $RadioStatus/MarginContainer/VBoxContainer/StatusValue
 @onready var _radio_flavor: Label = $RadioStatus/MarginContainer/VBoxContainer/FlavorText
@@ -167,6 +168,11 @@ func _append_event(text: String, tone: String) -> void:
 		_event_feed_lines.pop_front()
 
 	_event_feed_label.text = "\n".join(_event_feed_lines)
+	call_deferred("_scroll_feed_to_latest")
+
+
+func _scroll_feed_to_latest() -> void:
+	_event_feed_scroll.scroll_vertical = int(_event_feed_scroll.get_v_scroll_bar().max_value)
 
 
 func _tone_prefix(tone: String) -> String:
