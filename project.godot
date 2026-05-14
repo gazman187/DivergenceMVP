@@ -5,7 +5,7 @@ config_version=5
 
 [application]
 config/name="DivergenceMVP"
-run/main_scene="res://scenes/main/Main.tscn"
+run/main_scene="res://scenes/prototype3d/PrototypeRoom3D.tscn"
 config/features=PackedStringArray("4.2")
 
 [autoload]
