@@ -274,6 +274,16 @@ spot_range = 5.5
 spot_angle = 34.0
 shadow_enabled = true
 
+[node name="DownstairsFill" type="SpotLight3D" parent="."]
+visible = false
+position = Vector3(7.95, -0.92, 0.02)
+rotation = Vector3(-1.22173, 1.570796, 0)
+light_color = Color(0.52, 0.56, 0.64, 1)
+light_energy = 0.55
+spot_range = 6.2
+spot_angle = 38.0
+shadow_enabled = true
+
 [node name="RoomShell" type="Node3D" parent="."]
 
 [node name="Floor" type="CSGBox3D" parent="RoomShell"]
@@ -344,9 +354,21 @@ position = Vector3(5.55, 2.5, 0)
 size = Vector3(0.48, 0.34, 1.85)
 material = SubResource("4")
 
-[node name="HallwayFloor" type="CSGBox3D" parent="RoomShell"]
-position = Vector3(7.55, -0.1, 0)
-size = Vector3(4.0, 0.2, 1.9)
+[node name="HallwayEntryFloor" type="CSGBox3D" parent="RoomShell"]
+position = Vector3(6.45, -0.1, 0)
+size = Vector3(1.8, 0.2, 1.9)
+material = SubResource("2")
+use_collision = true
+
+[node name="HallwayWeakPanel" type="CSGBox3D" parent="RoomShell"]
+position = Vector3(7.85, -0.08, 0)
+size = Vector3(1.0, 0.16, 1.62)
+material = SubResource("6")
+use_collision = true
+
+[node name="HallwayFarFloor" type="CSGBox3D" parent="RoomShell"]
+position = Vector3(8.95, -0.1, 0)
+size = Vector3(1.0, 0.2, 1.9)
 material = SubResource("2")
 use_collision = true
 
@@ -377,6 +399,54 @@ use_collision = true
 position = Vector3(7.35, 0.021, 0)
 size = Vector3(2.8, 0.02, 0.82)
 material = SubResource("13")
+
+[node name="HallwayHoleVoid" type="CSGBox3D" parent="RoomShell"]
+visible = false
+position = Vector3(7.85, -0.62, 0)
+size = Vector3(1.12, 1.14, 1.7)
+material = SubResource("4")
+
+[node name="CollapseBarrier" type="CSGBox3D" parent="RoomShell"]
+visible = false
+position = Vector3(6.98, 0.38, 0)
+rotation = Vector3(0.24, 0.0, 0.08)
+size = Vector3(0.54, 0.76, 1.58)
+material = SubResource("4")
+use_collision = true
+
+[node name="DustPlume" type="MeshInstance3D" parent="RoomShell"]
+visible = false
+position = Vector3(7.74, 0.32, 0)
+scale = Vector3(2.1, 2.3, 1.5)
+mesh = SubResource("24")
+material_override = SubResource("13")
+
+[node name="DownstairsPlaceholder" type="Node3D" parent="RoomShell"]
+visible = false
+
+[node name="LowerPlatform" type="CSGBox3D" parent="RoomShell/DownstairsPlaceholder"]
+position = Vector3(7.85, -2.35, 0)
+size = Vector3(3.2, 0.2, 2.1)
+material = SubResource("2")
+use_collision = true
+
+[node name="LowerBackWall" type="CSGBox3D" parent="RoomShell/DownstairsPlaceholder"]
+position = Vector3(9.38, -1.05, 0)
+size = Vector3(0.24, 2.4, 2.1)
+material = SubResource("3")
+use_collision = true
+
+[node name="LowerNorthWall" type="CSGBox3D" parent="RoomShell/DownstairsPlaceholder"]
+position = Vector3(7.85, -1.05, -1.05)
+size = Vector3(3.2, 2.4, 0.22)
+material = SubResource("3")
+use_collision = true
+
+[node name="LowerSouthWall" type="CSGBox3D" parent="RoomShell/DownstairsPlaceholder"]
+position = Vector3(7.85, -1.05, 1.05)
+size = Vector3(3.2, 2.4, 0.22)
+material = SubResource("3")
+use_collision = true
 
 [node name="BaseboardWest" type="CSGBox3D" parent="RoomShell"]
 position = Vector3(-5.78, 0.15, 0)
@@ -699,11 +769,11 @@ visible = false
 
 [node name="HallwayEdgeZone" type="Area3D" parent="Interactables" groups=["prototype_interactable"]]
 script = ExtResource("3")
-position = Vector3(8.1, 1.0, 0.0)
+position = Vector3(6.9, 1.0, 0.0)
 collision_layer = 8
 interactable_id = "hallway_edge"
-prompt_text = "Test the weak floor"
-message_text = "The hallway groans under the house, but the full collapse stays for later."
+prompt_text = "Inspect the collapse edge"
+message_text = "The floor is gone."
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Interactables/HallwayEdgeZone"]
 shape = SubResource("23")
@@ -714,6 +784,14 @@ scale = Vector3(0.95, 0.2, 0.95)
 mesh = SubResource("24")
 material_override = SubResource("13")
 visible = false
+
+[node name="CollapseTrigger" type="Area3D" parent="."]
+position = Vector3(7.82, 0.92, 0)
+collision_mask = 1
+monitoring = true
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CollapseTrigger"]
+shape = SubResource("23")
 
 [node name="TransitionAnchors" type="Node3D" parent="."]
 
@@ -731,6 +809,22 @@ rotation = Vector3(0, 1.5708, 0)
 
 [node name="PlayerTwoHallway" type="Node3D" parent="TransitionAnchors"]
 position = Vector3(6.68, 0.02, -0.26)
+rotation = Vector3(0, 1.5708, 0)
+
+[node name="PlayerOneDownstairs" type="Node3D" parent="TransitionAnchors"]
+position = Vector3(7.58, -2.24, 0.28)
+rotation = Vector3(0, 1.25664, 0)
+
+[node name="PlayerTwoDownstairs" type="Node3D" parent="TransitionAnchors"]
+position = Vector3(8.16, -2.24, -0.28)
+rotation = Vector3(0, 1.88496, 0)
+
+[node name="PlayerOneBlocked" type="Node3D" parent="TransitionAnchors"]
+position = Vector3(6.28, 0.02, 0.22)
+rotation = Vector3(0, 1.5708, 0)
+
+[node name="PlayerTwoBlocked" type="Node3D" parent="TransitionAnchors"]
+position = Vector3(6.08, 0.02, -0.22)
 rotation = Vector3(0, 1.5708, 0)
 
 [node name="Player" type="CharacterBody3D" parent="."]
