@@ -8,6 +8,8 @@ class_name GreyboxLocation
 
 func _ready() -> void:
 	EventBus.state_changed.connect(_refresh_visual_state)
+	_set_canvas_item_visible("Title", false)
+	_set_canvas_item_visible("Description", false)
 	_refresh_visual_state()
 
 

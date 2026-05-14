@@ -1,7 +1,7 @@
 extends Control
 class_name UIManager
 
-const MAX_FEED_LINES := 18
+const MAX_FEED_LINES := 6
 const RADIO_STYLES := {
 	"Clear": {
 		"bars": 4,
@@ -31,6 +31,7 @@ const RADIO_STYLES := {
 
 @onready var _prompt_frame: PanelContainer = $InteractionPrompt
 @onready var _prompt_label: Label = $InteractionPrompt/MarginContainer/VBoxContainer/PromptText
+@onready var _event_feed_frame: PanelContainer = $EventFeed
 @onready var _event_feed_scroll: ScrollContainer = $EventFeed/MarginContainer/VBoxContainer/FeedScroll
 @onready var _event_feed_label: Label = $EventFeed/MarginContainer/VBoxContainer/FeedScroll/FeedContent/EventFeedEntries
 @onready var _radio_panel: PanelContainer = $RadioStatus
@@ -74,12 +75,13 @@ func _ready() -> void:
 	]
 
 	_prompt_label.text = "Prototype ready. Move either player into the hallway."
+	_event_feed_frame.visible = false
+	_event_feed_label.text = ""
 	_cinematic.visible = false
 	_cinematic_flash.modulate.a = 0.0
 	_cinematic_dust.modulate.a = 0.0
 	_cinematic_fracture.modulate.a = 0.0
 	_apply_radio_status("Clear", false)
-	_append_event("Receiver warmed. The house is listening.", "system")
 	set_process(true)
 
 
@@ -207,6 +209,9 @@ func _apply_radio_status(status: String, animate: bool) -> void:
 
 
 func _append_event(text: String, tone: String) -> void:
+	if not _should_display_event(text, tone):
+		return
+
 	var formatted: String = "%s %s" % [_tone_prefix(tone), text]
 	if not _event_feed_lines.is_empty() and _event_feed_lines[-1] == formatted:
 		return
@@ -215,6 +220,7 @@ func _append_event(text: String, tone: String) -> void:
 	while _event_feed_lines.size() > MAX_FEED_LINES:
 		_event_feed_lines.pop_front()
 
+	_event_feed_frame.visible = true
 	_event_feed_label.text = "\n".join(_event_feed_lines)
 	call_deferred("_scroll_feed_to_latest")
 
@@ -226,17 +232,26 @@ func _scroll_feed_to_latest() -> void:
 func _tone_prefix(tone: String) -> String:
 	match tone:
 		"critical":
-			return "IMPACT //"
+			return "IMPACT:"
 		"signal":
-			return "RADIO  //"
+			return "RADIO:"
 		"hope":
-			return "LINK   //"
-		"ambience":
-			return "HOUSE  //"
-		"movement":
-			return "TRACE  //"
+			return "LINK:"
+		"system":
+			return "STATE:"
 		_:
-			return "SYSTEM //"
+			return "HOUSE:"
+
+
+func _should_display_event(text: String, tone: String) -> bool:
+	if tone == "critical" or tone == "signal" or tone == "hope":
+		return true
+
+	if tone == "system":
+		var lower_text: String = text.to_lower()
+		return lower_text.findn("key") >= 0 or lower_text.findn("shed") >= 0
+
+	return false
 
 
 func _radio_style_for_status(status: String) -> Dictionary:
