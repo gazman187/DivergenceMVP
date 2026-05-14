@@ -78,6 +78,29 @@ emission_enabled = true
 emission = Color(0.94, 0.84, 0.56, 1)
 emission_energy_multiplier = 0.65
 
+[sub_resource type="StandardMaterial3D" id="33"]
+albedo_color = Color(0.06, 0.05, 0.05, 0.22)
+transparency = 1
+shading_mode = 0
+
+[sub_resource type="BoxMesh" id="34"]
+size = Vector3(0.22, 0.22, 0.22)
+
+[sub_resource type="SphereMesh" id="35"]
+material = SubResource("9")
+radius = 0.13
+height = 0.26
+
+[sub_resource type="SphereMesh" id="36"]
+material = SubResource("10")
+radius = 0.12
+height = 0.24
+
+[sub_resource type="SphereMesh" id="37"]
+material = SubResource("11")
+radius = 0.12
+height = 0.24
+
 [sub_resource type="CapsuleShape3D" id="14"]
 radius = 0.34
 height = 1.12
@@ -208,6 +231,33 @@ spot_range = 8.0
 spot_angle = 38.0
 shadow_enabled = true
 
+[node name="WindowBeam" type="SpotLight3D" parent="."]
+position = Vector3(0.2, 2.78, -4.0)
+rotation = Vector3(-1.176005, -0.034907, 0)
+light_color = Color(0.54, 0.66, 0.8, 1)
+light_energy = 2.2
+spot_range = 9.0
+spot_angle = 34.0
+shadow_enabled = true
+
+[node name="PlayerKeyLight" type="SpotLight3D" parent="."]
+position = Vector3(-2.0, 2.6, 2.8)
+rotation = Vector3(-1.117011, 0.942478, 0)
+light_color = Color(0.86, 0.76, 0.62, 1)
+light_energy = 1.75
+spot_range = 8.0
+spot_angle = 33.0
+shadow_enabled = true
+
+[node name="CompanionRimLight" type="SpotLight3D" parent="."]
+position = Vector3(-1.1, 2.55, -3.5)
+rotation = Vector3(-1.064651, 0.488692, 0)
+light_color = Color(0.5, 0.66, 0.78, 1)
+light_energy = 1.25
+spot_range = 7.2
+spot_angle = 28.0
+shadow_enabled = true
+
 [node name="RoomShell" type="Node3D" parent="."]
 
 [node name="Floor" type="CSGBox3D" parent="RoomShell"]
@@ -307,6 +357,16 @@ material_override = SubResource("7")
 position = Vector3(0.15, 0.62, -4.25)
 size = Vector3(3.2, 0.14, 0.18)
 material = SubResource("4")
+
+[node name="CurtainLeft" type="CSGBox3D" parent="RoomShell"]
+position = Vector3(-1.25, 2.05, -4.12)
+size = Vector3(0.65, 1.9, 0.08)
+material = SubResource("6")
+
+[node name="CurtainRight" type="CSGBox3D" parent="RoomShell"]
+position = Vector3(1.45, 1.98, -4.12)
+size = Vector3(0.8, 1.75, 0.08)
+material = SubResource("6")
 
 [node name="Beam1" type="CSGBox3D" parent="RoomShell"]
 position = Vector3(-2.8, 2.88, -0.2)
@@ -430,6 +490,12 @@ material = SubResource("13")
 position = Vector3(-0.35, 0, -1.85)
 rotation = Vector3(0, 2.61799, 0)
 
+[node name="Shadow" type="MeshInstance3D" parent="Characters/Companion"]
+position = Vector3(0, 0.02, 0)
+scale = Vector3(1.5, 0.04, 1.25)
+mesh = SubResource("24")
+material_override = SubResource("33")
+
 [node name="Body" type="MeshInstance3D" parent="Characters/Companion"]
 position = Vector3(0, 0.82, 0)
 mesh = SubResource("29")
@@ -438,9 +504,30 @@ mesh = SubResource("29")
 position = Vector3(0, 1.66, 0)
 mesh = SubResource("30")
 
+[node name="ShoulderLeft" type="MeshInstance3D" parent="Characters/Companion"]
+position = Vector3(-0.22, 1.16, 0)
+mesh = SubResource("36")
+
+[node name="ShoulderRight" type="MeshInstance3D" parent="Characters/Companion"]
+position = Vector3(0.22, 1.16, 0)
+mesh = SubResource("36")
+
+[node name="Satchel" type="MeshInstance3D" parent="Characters/Companion"]
+position = Vector3(0.25, 0.95, 0.14)
+rotation = Vector3(0.12, 0.0, 0.44)
+scale = Vector3(1.0, 1.22, 0.78)
+mesh = SubResource("34")
+material_override = SubResource("4")
+
 [node name="BlockedFriend" type="Node3D" parent="Characters"]
 position = Vector3(4.75, 0, 0.42)
 rotation = Vector3(0, -1.65806, 0)
+
+[node name="Shadow" type="MeshInstance3D" parent="Characters/BlockedFriend"]
+position = Vector3(0, 0.02, 0)
+scale = Vector3(1.42, 0.04, 1.18)
+mesh = SubResource("24")
+material_override = SubResource("33")
 
 [node name="Body" type="MeshInstance3D" parent="Characters/BlockedFriend"]
 position = Vector3(0, 0.82, 0)
@@ -449,6 +536,21 @@ mesh = SubResource("31")
 [node name="Head" type="MeshInstance3D" parent="Characters/BlockedFriend"]
 position = Vector3(0, 1.66, 0)
 mesh = SubResource("32")
+
+[node name="ShoulderLeft" type="MeshInstance3D" parent="Characters/BlockedFriend"]
+position = Vector3(-0.22, 1.16, 0)
+mesh = SubResource("37")
+
+[node name="ShoulderRight" type="MeshInstance3D" parent="Characters/BlockedFriend"]
+position = Vector3(0.22, 1.16, 0)
+mesh = SubResource("37")
+
+[node name="Satchel" type="MeshInstance3D" parent="Characters/BlockedFriend"]
+position = Vector3(-0.24, 0.96, 0.12)
+rotation = Vector3(0.12, 0.0, -0.44)
+scale = Vector3(0.94, 1.15, 0.76)
+mesh = SubResource("34")
+material_override = SubResource("4")
 
 [node name="Interactables" type="Node3D" parent="."]
 
@@ -551,6 +653,12 @@ shape = SubResource("14")
 
 [node name="Visuals" type="Node3D" parent="Player"]
 
+[node name="Shadow" type="MeshInstance3D" parent="Player/Visuals"]
+position = Vector3(0, 0.02, 0)
+scale = Vector3(1.52, 0.04, 1.24)
+mesh = SubResource("24")
+material_override = SubResource("33")
+
 [node name="Body" type="MeshInstance3D" parent="Player/Visuals"]
 position = Vector3(0, 0.82, 0)
 mesh = SubResource("27")
@@ -558,6 +666,21 @@ mesh = SubResource("27")
 [node name="Head" type="MeshInstance3D" parent="Player/Visuals"]
 position = Vector3(0, 1.66, 0)
 mesh = SubResource("28")
+
+[node name="ShoulderLeft" type="MeshInstance3D" parent="Player/Visuals"]
+position = Vector3(-0.24, 1.17, 0)
+mesh = SubResource("35")
+
+[node name="ShoulderRight" type="MeshInstance3D" parent="Player/Visuals"]
+position = Vector3(0.24, 1.17, 0)
+mesh = SubResource("35")
+
+[node name="Satchel" type="MeshInstance3D" parent="Player/Visuals"]
+position = Vector3(0.27, 0.96, 0.13)
+rotation = Vector3(0.14, 0.0, 0.48)
+scale = Vector3(1.02, 1.24, 0.8)
+mesh = SubResource("34")
+material_override = SubResource("4")
 
 [node name="YawPivot" type="Node3D" parent="Player"]
 position = Vector3(0, 1.5, 0)
@@ -570,7 +693,7 @@ collision_mask = 1
 
 [node name="Camera3D" type="Camera3D" parent="Player/YawPivot/PitchPivot/SpringArm3D"]
 current = true
-position = Vector3(0, 0.55, 0)
+position = Vector3(0.22, 0.52, 0)
 rotation = Vector3(-0.16, 0, 0)
 fov = 56.0
 
