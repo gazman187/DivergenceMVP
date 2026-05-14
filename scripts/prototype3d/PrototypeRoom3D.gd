@@ -46,8 +46,6 @@ const INTERACTION_FEED: Dictionary = {
 @onready var _player_two_hallway_anchor: Node3D = $TransitionAnchors/PlayerTwoHallway
 @onready var _player_one_downstairs_anchor: Node3D = $TransitionAnchors/PlayerOneDownstairs
 @onready var _player_two_downstairs_anchor: Node3D = $TransitionAnchors/PlayerTwoDownstairs
-@onready var _player_one_blocked_anchor: Node3D = $TransitionAnchors/PlayerOneBlocked
-@onready var _player_two_blocked_anchor: Node3D = $TransitionAnchors/PlayerTwoBlocked
 @onready var _area_card: Control = $UI/AreaCard
 @onready var _area_card_title: Label = $UI/AreaCard/Margin/VBox/AreaTitle
 @onready var _area_card_subtitle: Label = $UI/AreaCard/Margin/VBox/AreaSubtitle
@@ -247,7 +245,6 @@ func _on_state_changed() -> void:
 
 func _on_collapse_triggered(player_id: String) -> void:
 	_set_collapse_visual_state(true)
-	_position_non_triggering_player(player_id)
 	_camera_shake_time_left = CAMERA_SHAKE_MAX_TIME
 	_trigger_transition_flash(0.34)
 	_show_area_card("FLOOR COLLAPSE", "%s is routed below. The upstairs path is gone." % _display_name(player_id))
@@ -606,19 +603,6 @@ func _sync_player_position(
 	_last_player_locations[player_id] = location
 
 
-func _position_non_triggering_player(triggering_player_id: String) -> void:
-	var other_player_id: String = _other_player_id(triggering_player_id)
-	if not _is_player_upstairs(other_player_id):
-		return
-
-	var other_player: PrototypePlayer3D = _player_for_id(other_player_id)
-	var blocked_anchor: Node3D = _player_one_blocked_anchor if other_player_id == PLAYER_ONE_ID else _player_two_blocked_anchor
-	if other_player == null or blocked_anchor == null:
-		return
-
-	other_player.snap_to_marker(blocked_anchor)
-
-
 func _doorway_prompt_for(active_player: PrototypePlayer3D) -> String:
 	if active_player == null:
 		return "Move closer to the doorway"
@@ -711,10 +695,6 @@ func _collapse_triggered_by_name() -> String:
 		return "Nobody"
 
 	return _display_name(triggering_player_id)
-
-
-func _other_player_id(player_id: String) -> String:
-	return PLAYER_TWO_ID if player_id == PLAYER_ONE_ID else PLAYER_ONE_ID
 
 
 func _pretty_location(location: String) -> String:
