@@ -3,6 +3,8 @@ class_name PrototypeRoom3D
 
 const TITLE_CARD_DURATION: float = 4.5
 const MAX_FEED_LINES: int = 3
+const CHARACTER_IDLE_SPEED: float = 1.35
+const LIGHT_LERP_SPEED: float = 2.2
 
 const DEFAULT_FEED_LINES: Array[String] = [
 	"You arrive upstairs before the collapse. The room should read clearly at a glance."
@@ -17,6 +19,7 @@ const INTERACTION_FEED: Dictionary = {
 }
 
 @onready var _player: PrototypePlayer3D = $Player as PrototypePlayer3D
+@onready var _camera: Camera3D = $Player/YawPivot/PitchPivot/SpringArm3D/Camera3D
 @onready var _area_card: Control = $UI/AreaCard
 @onready var _area_card_title: Label = $UI/AreaCard/Margin/VBox/AreaTitle
 @onready var _area_card_subtitle: Label = $UI/AreaCard/Margin/VBox/AreaSubtitle
@@ -25,9 +28,17 @@ const INTERACTION_FEED: Dictionary = {
 @onready var _status_label: Label = $UI/StatusPanel/Margin/VBox/StatusLabel
 @onready var _debug_panel: PanelContainer = $UI/DebugPanel
 @onready var _debug_label: Label = $UI/DebugPanel/Margin/DebugLabel
+@onready var _companion: Node3D = $Characters/Companion
+@onready var _blocked_friend: Node3D = $Characters/BlockedFriend
+@onready var _lamp_light: OmniLight3D = $LampLight
+@onready var _door_spill: SpotLight3D = $DoorSpill
+@onready var _window_beam: SpotLight3D = $WindowBeam
+@onready var _player_key_light: SpotLight3D = $PlayerKeyLight
+@onready var _companion_rim_light: SpotLight3D = $CompanionRimLight
 
 var _title_card_time_left: float = TITLE_CARD_DURATION
 var _feed_lines: Array[String] = []
+var _presentation_time: float = 0.0
 
 
 func _ready() -> void:
@@ -42,7 +53,7 @@ func _ready() -> void:
 		interactable.interacted.connect(_on_interactable_interacted)
 
 	_area_card_title.text = "UPSTAIRS ROOM"
-	_area_card_subtitle.text = "One playable vertical slice. Readability first, atmosphere second."
+	_area_card_subtitle.text = "An embodied vertical slice with a clear threat line and a room you can actually read."
 	_debug_panel.visible = false
 	_feed_lines = []
 	for line in DEFAULT_FEED_LINES:
@@ -53,8 +64,11 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	_presentation_time += delta
 	_update_area_card(delta)
 	_refresh_prompt()
+	_update_character_embodiment(delta)
+	_update_lighting_mood(delta)
 	_refresh_debug_text()
 
 
@@ -145,3 +159,36 @@ func _refresh_debug_text() -> void:
 		position_text,
 		cursor_mode
 	]
+
+
+func _update_character_embodiment(delta: float) -> void:
+	var companion_position: Vector3 = _companion.position
+	companion_position.y = sin(_presentation_time * CHARACTER_IDLE_SPEED) * 0.035
+	_companion.position = companion_position
+	_companion.rotation.y = lerp_angle(_companion.rotation.y, 2.61799 + sin(_presentation_time * 0.7) * 0.08, min(1.0, delta * 1.8))
+
+	var blocked_position: Vector3 = _blocked_friend.position
+	blocked_position.y = sin(_presentation_time * (CHARACTER_IDLE_SPEED + 0.22) + 0.9) * 0.024
+	_blocked_friend.position = blocked_position
+	_blocked_friend.rotation.y = lerp_angle(_blocked_friend.rotation.y, -1.65806 + sin(_presentation_time * 0.82) * 0.05, min(1.0, delta * 1.6))
+
+
+func _update_lighting_mood(delta: float) -> void:
+	var motion_ratio: float = _player.get_motion_ratio()
+	var focus_ratio: float = 1.0 if _player.has_focus_interactable() else 0.0
+
+	var target_window_energy: float = 2.2 + focus_ratio * 0.55
+	var target_door_energy: float = 1.5 + focus_ratio * 0.25
+	var target_player_key_energy: float = 1.75 + motion_ratio * 0.45
+	var target_companion_rim_energy: float = 1.25 + focus_ratio * 0.5
+	var target_lamp_energy: float = 2.2 - focus_ratio * 0.2
+
+	_window_beam.light_energy = move_toward(_window_beam.light_energy, target_window_energy, delta * LIGHT_LERP_SPEED)
+	_door_spill.light_energy = move_toward(_door_spill.light_energy, target_door_energy, delta * LIGHT_LERP_SPEED)
+	_player_key_light.light_energy = move_toward(_player_key_light.light_energy, target_player_key_energy, delta * LIGHT_LERP_SPEED)
+	_companion_rim_light.light_energy = move_toward(_companion_rim_light.light_energy, target_companion_rim_energy, delta * LIGHT_LERP_SPEED)
+	_lamp_light.light_energy = move_toward(_lamp_light.light_energy, target_lamp_energy, delta * LIGHT_LERP_SPEED)
+
+	var camera_rotation: Vector3 = _camera.rotation
+	camera_rotation.z = lerp_angle(camera_rotation.z, -motion_ratio * 0.01, min(1.0, delta * 2.6))
+	_camera.rotation = camera_rotation
