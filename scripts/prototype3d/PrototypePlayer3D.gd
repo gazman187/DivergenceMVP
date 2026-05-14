@@ -12,6 +12,7 @@ const CAMERA_SWAY_SPEED: float = 7.0
 @export var move_speed: float = 5.2
 @export var acceleration: float = 18.0
 @export var mouse_sensitivity: float = 0.0026
+@export var display_name: String = "Player"
 @export var default_spring_length: float = 3.8
 @export var focus_spring_length: float = 3.15
 @export var default_fov: float = 56.0
@@ -26,10 +27,12 @@ const CAMERA_SWAY_SPEED: float = 7.0
 @onready var _body_visuals: Node3D = $Visuals
 @onready var _body_mesh: MeshInstance3D = $Visuals/Body
 @onready var _head_mesh: MeshInstance3D = $Visuals/Head
+@onready var _selection_ring: MeshInstance3D = get_node_or_null("Visuals/SelectionRing") as MeshInstance3D
 
 var _nearby_interactables: Array[PrototypeInteractable3D] = []
 var _current_interactable: PrototypeInteractable3D = null
 var _presentation_time: float = 0.0
+var _is_active: bool = true
 
 
 func _ready() -> void:
@@ -38,9 +41,13 @@ func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	_spring_arm.spring_length = default_spring_length
 	_camera.fov = default_fov
+	_apply_active_visuals()
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if not _is_active:
+		return
+
 	var mouse_motion: InputEventMouseMotion = event as InputEventMouseMotion
 	if mouse_motion == null or Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
 		return
@@ -51,9 +58,22 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _physics_process(delta: float) -> void:
+	_presentation_time += delta
+
+	if not _is_active:
+		velocity.x = move_toward(velocity.x, 0.0, acceleration * delta)
+		velocity.z = move_toward(velocity.z, 0.0, acceleration * delta)
+		if is_on_floor():
+			velocity.y = -0.01
+		else:
+			velocity.y -= GRAVITY_FORCE * delta
+		move_and_slide()
+		_update_body_presentation(delta, Vector2.ZERO)
+		_clear_focus()
+		return
+
 	var input_vector: Vector2 = _read_move_input()
 	var desired_velocity: Vector3 = _calculate_desired_velocity(input_vector)
-	_presentation_time += delta
 
 	velocity.x = move_toward(velocity.x, desired_velocity.x, acceleration * delta)
 	velocity.z = move_toward(velocity.z, desired_velocity.z, acceleration * delta)
@@ -83,6 +103,21 @@ func get_focus_name() -> String:
 	return _current_interactable.prompt_text
 
 
+func get_focus_interactable_id() -> String:
+	if _current_interactable == null:
+		return ""
+
+	return _current_interactable.interactable_id
+
+
+func get_display_name() -> String:
+	return display_name
+
+
+func get_camera() -> Camera3D:
+	return _camera
+
+
 func has_focus_interactable() -> bool:
 	return _current_interactable != null
 
@@ -96,10 +131,31 @@ func get_motion_ratio() -> float:
 
 
 func try_interact() -> bool:
-	if _current_interactable == null:
+	if not _is_active or _current_interactable == null:
 		return false
 
 	return _current_interactable.interact()
+
+
+func set_active_state(is_active: bool) -> void:
+	if _is_active == is_active:
+		return
+
+	_is_active = is_active
+	_camera.current = is_active
+	if not is_active:
+		_clear_focus()
+	_apply_active_visuals()
+
+
+func snap_to_marker(marker: Node3D) -> void:
+	if marker == null:
+		return
+
+	global_position = marker.global_position
+	velocity = Vector3.ZERO
+	_yaw_pivot.global_rotation.y = marker.global_rotation.y
+	_body_visuals.global_rotation.y = marker.global_rotation.y
 
 
 func _read_move_input() -> Vector2:
@@ -206,6 +262,19 @@ func _on_sensor_area_exited(area: Area3D) -> void:
 	_refresh_current_interactable()
 
 
+func _clear_focus() -> void:
+	if _current_interactable == null:
+		return
+
+	for interactable in _nearby_interactables:
+		if not is_instance_valid(interactable):
+			continue
+		interactable.set_focus_enabled(false)
+
+	_current_interactable = null
+	focus_changed.emit()
+
+
 func _refresh_current_interactable() -> void:
 	var next_interactables: Array[PrototypeInteractable3D] = []
 	var best_interactable: PrototypeInteractable3D = null
@@ -240,3 +309,8 @@ func _refresh_current_interactable() -> void:
 	for interactable in _nearby_interactables:
 		interactable.set_focus_enabled(interactable == _current_interactable)
 	focus_changed.emit()
+
+
+func _apply_active_visuals() -> void:
+	if _selection_ring != null:
+		_selection_ring.visible = _is_active
