@@ -33,6 +33,7 @@ var _nearby_interactables: Array[PrototypeInteractable3D] = []
 var _current_interactable: PrototypeInteractable3D = null
 var _presentation_time: float = 0.0
 var _is_active: bool = true
+var _input_locked: bool = false
 
 
 func _ready() -> void:
@@ -45,7 +46,7 @@ func _ready() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if not _is_active:
+	if not _is_active or _input_locked:
 		return
 
 	var mouse_motion: InputEventMouseMotion = event as InputEventMouseMotion
@@ -72,7 +73,7 @@ func _physics_process(delta: float) -> void:
 		_clear_focus()
 		return
 
-	var input_vector: Vector2 = _read_move_input()
+	var input_vector: Vector2 = Vector2.ZERO if _input_locked else _read_move_input()
 	var desired_velocity: Vector3 = _calculate_desired_velocity(input_vector)
 
 	velocity.x = move_toward(velocity.x, desired_velocity.x, acceleration * delta)
@@ -146,6 +147,12 @@ func set_active_state(is_active: bool) -> void:
 	if not is_active:
 		_clear_focus()
 	_apply_active_visuals()
+
+
+func set_input_locked(locked: bool) -> void:
+	_input_locked = locked
+	if locked:
+		velocity = Vector3.ZERO
 
 
 func snap_to_marker(marker: Node3D) -> void:
