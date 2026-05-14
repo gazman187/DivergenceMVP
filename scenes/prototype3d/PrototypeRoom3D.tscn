@@ -1,4 +1,4 @@
-[gd_scene load_steps=40 format=3]
+[gd_scene load_steps=41 format=3]
 
 [ext_resource type="Script" path="res://scripts/prototype3d/PrototypeRoom3D.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/prototype3d/PrototypePlayer3D.gd" id="2"]
@@ -100,6 +100,13 @@ height = 0.24
 material = SubResource("11")
 radius = 0.12
 height = 0.24
+
+[sub_resource type="StandardMaterial3D" id="38"]
+albedo_color = Color(0.9, 0.86, 0.62, 0.18)
+transparency = 1
+emission_enabled = true
+emission = Color(0.94, 0.86, 0.62, 1)
+emission_energy_multiplier = 0.9
 
 [sub_resource type="CapsuleShape3D" id="14"]
 radius = 0.34
@@ -258,6 +265,15 @@ spot_range = 7.2
 spot_angle = 28.0
 shadow_enabled = true
 
+[node name="HallwayFill" type="SpotLight3D" parent="."]
+position = Vector3(7.55, 2.68, 0.02)
+rotation = Vector3(-1.151917, 1.570796, 0)
+light_color = Color(0.62, 0.69, 0.78, 1)
+light_energy = 1.05
+spot_range = 5.5
+spot_angle = 34.0
+shadow_enabled = true
+
 [node name="RoomShell" type="Node3D" parent="."]
 
 [node name="Floor" type="CSGBox3D" parent="RoomShell"]
@@ -327,6 +343,40 @@ material = SubResource("4")
 position = Vector3(5.55, 2.5, 0)
 size = Vector3(0.48, 0.34, 1.85)
 material = SubResource("4")
+
+[node name="HallwayFloor" type="CSGBox3D" parent="RoomShell"]
+position = Vector3(7.55, -0.1, 0)
+size = Vector3(4.0, 0.2, 1.9)
+material = SubResource("2")
+use_collision = true
+
+[node name="HallwayCeiling" type="CSGBox3D" parent="RoomShell"]
+position = Vector3(7.55, 3.2, 0)
+size = Vector3(4.0, 0.18, 1.9)
+material = SubResource("4")
+
+[node name="HallwayNorthWall" type="CSGBox3D" parent="RoomShell"]
+position = Vector3(7.55, 1.5, -1.05)
+size = Vector3(4.0, 3.0, 0.22)
+material = SubResource("3")
+use_collision = true
+
+[node name="HallwaySouthWall" type="CSGBox3D" parent="RoomShell"]
+position = Vector3(7.55, 1.5, 1.05)
+size = Vector3(4.0, 3.0, 0.22)
+material = SubResource("3")
+use_collision = true
+
+[node name="HallwayEndWall" type="CSGBox3D" parent="RoomShell"]
+position = Vector3(9.45, 1.5, 0)
+size = Vector3(0.22, 3.0, 1.9)
+material = SubResource("3")
+use_collision = true
+
+[node name="HallwayRunner" type="CSGBox3D" parent="RoomShell"]
+position = Vector3(7.35, 0.021, 0)
+size = Vector3(2.8, 0.02, 0.82)
+material = SubResource("13")
 
 [node name="BaseboardWest" type="CSGBox3D" parent="RoomShell"]
 position = Vector3(-5.78, 0.15, 0)
@@ -487,6 +537,7 @@ material = SubResource("13")
 [node name="Characters" type="Node3D" parent="."]
 
 [node name="Companion" type="Node3D" parent="Characters"]
+visible = false
 position = Vector3(-0.35, 0, -1.85)
 rotation = Vector3(0, 2.61799, 0)
 
@@ -590,6 +641,7 @@ material_override = SubResource("13")
 visible = false
 
 [node name="WeakFloorZone" type="Area3D" parent="Interactables" groups=["prototype_interactable"]]
+monitoring = false
 script = ExtResource("3")
 position = Vector3(3.95, 0.55, 0.05)
 collision_layer = 8
@@ -608,6 +660,8 @@ material_override = SubResource("13")
 visible = false
 
 [node name="CompanionZone" type="Area3D" parent="Interactables" groups=["prototype_interactable"]]
+visible = false
+monitoring = false
 script = ExtResource("3")
 position = Vector3(-0.35, 1.0, -1.85)
 collision_layer = 8
@@ -630,8 +684,8 @@ script = ExtResource("3")
 position = Vector3(4.85, 1.05, 0.05)
 collision_layer = 8
 interactable_id = "blocked_door"
-prompt_text = "Approach the hallway threshold"
-message_text = "The doorway frames the danger perfectly: close, legible, and already ominous."
+prompt_text = "Enter hallway"
+message_text = "The doorway is the first real step out of the room."
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Interactables/DoorZone"]
 shape = SubResource("23")
@@ -643,9 +697,46 @@ mesh = SubResource("24")
 material_override = SubResource("13")
 visible = false
 
+[node name="HallwayEdgeZone" type="Area3D" parent="Interactables" groups=["prototype_interactable"]]
+script = ExtResource("3")
+position = Vector3(8.1, 1.0, 0.0)
+collision_layer = 8
+interactable_id = "hallway_edge"
+prompt_text = "Test the weak floor"
+message_text = "The hallway groans under the house, but the full collapse stays for later."
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Interactables/HallwayEdgeZone"]
+shape = SubResource("23")
+
+[node name="Highlight" type="MeshInstance3D" parent="Interactables/HallwayEdgeZone"]
+position = Vector3(0, -0.95, 0)
+scale = Vector3(0.95, 0.2, 0.95)
+mesh = SubResource("24")
+material_override = SubResource("13")
+visible = false
+
+[node name="TransitionAnchors" type="Node3D" parent="."]
+
+[node name="PlayerOneRoom" type="Node3D" parent="TransitionAnchors"]
+position = Vector3(-1.6, 0.02, 1.1)
+rotation = Vector3(0, 1.25664, 0)
+
+[node name="PlayerTwoRoom" type="Node3D" parent="TransitionAnchors"]
+position = Vector3(-3.25, 0.02, 0.7)
+rotation = Vector3(0, 1.0472, 0)
+
+[node name="PlayerOneHallway" type="Node3D" parent="TransitionAnchors"]
+position = Vector3(7.05, 0.02, 0.26)
+rotation = Vector3(0, 1.5708, 0)
+
+[node name="PlayerTwoHallway" type="Node3D" parent="TransitionAnchors"]
+position = Vector3(6.68, 0.02, -0.26)
+rotation = Vector3(0, 1.5708, 0)
+
 [node name="Player" type="CharacterBody3D" parent="."]
 position = Vector3(-1.6, 0.02, 1.1)
 script = ExtResource("2")
+display_name = "Player 1"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Player"]
 position = Vector3(0, 0.9, 0)
@@ -681,6 +772,82 @@ rotation = Vector3(0.14, 0.0, 0.48)
 scale = Vector3(1.02, 1.24, 0.8)
 mesh = SubResource("34")
 material_override = SubResource("4")
+
+[node name="SelectionRing" type="MeshInstance3D" parent="Player/Visuals"]
+position = Vector3(0, 0.04, 0)
+scale = Vector3(1.3, 0.06, 1.3)
+mesh = SubResource("24")
+material_override = SubResource("38")
+
+[node name="PlayerTwo" type="CharacterBody3D" parent="."]
+position = Vector3(-3.25, 0.02, 0.7)
+script = ExtResource("2")
+display_name = "Player 2"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="PlayerTwo"]
+position = Vector3(0, 0.9, 0)
+shape = SubResource("14")
+
+[node name="Visuals" type="Node3D" parent="PlayerTwo"]
+
+[node name="Shadow" type="MeshInstance3D" parent="PlayerTwo/Visuals"]
+position = Vector3(0, 0.02, 0)
+scale = Vector3(1.5, 0.04, 1.22)
+mesh = SubResource("24")
+material_override = SubResource("33")
+
+[node name="Body" type="MeshInstance3D" parent="PlayerTwo/Visuals"]
+position = Vector3(0, 0.82, 0)
+mesh = SubResource("29")
+
+[node name="Head" type="MeshInstance3D" parent="PlayerTwo/Visuals"]
+position = Vector3(0, 1.66, 0)
+mesh = SubResource("30")
+
+[node name="ShoulderLeft" type="MeshInstance3D" parent="PlayerTwo/Visuals"]
+position = Vector3(-0.22, 1.16, 0)
+mesh = SubResource("36")
+
+[node name="ShoulderRight" type="MeshInstance3D" parent="PlayerTwo/Visuals"]
+position = Vector3(0.22, 1.16, 0)
+mesh = SubResource("36")
+
+[node name="Satchel" type="MeshInstance3D" parent="PlayerTwo/Visuals"]
+position = Vector3(-0.25, 0.95, 0.14)
+rotation = Vector3(0.12, 0.0, -0.44)
+scale = Vector3(1.0, 1.22, 0.78)
+mesh = SubResource("34")
+material_override = SubResource("4")
+
+[node name="SelectionRing" type="MeshInstance3D" parent="PlayerTwo/Visuals"]
+visible = false
+position = Vector3(0, 0.04, 0)
+scale = Vector3(1.28, 0.06, 1.28)
+mesh = SubResource("24")
+material_override = SubResource("38")
+
+[node name="YawPivot" type="Node3D" parent="PlayerTwo"]
+position = Vector3(0, 1.5, 0)
+
+[node name="PitchPivot" type="Node3D" parent="PlayerTwo/YawPivot"]
+
+[node name="SpringArm3D" type="SpringArm3D" parent="PlayerTwo/YawPivot/PitchPivot"]
+spring_length = 3.8
+collision_mask = 1
+
+[node name="Camera3D" type="Camera3D" parent="PlayerTwo/YawPivot/PitchPivot/SpringArm3D"]
+current = false
+position = Vector3(0.22, 0.52, 0)
+rotation = Vector3(-0.16, 0, 0)
+fov = 56.0
+
+[node name="InteractionSensor" type="Area3D" parent="PlayerTwo"]
+position = Vector3(0, 1.0, 0)
+collision_mask = 8
+monitoring = true
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="PlayerTwo/InteractionSensor"]
+shape = SubResource("15")
 
 [node name="YawPivot" type="Node3D" parent="Player"]
 position = Vector3(0, 1.5, 0)
@@ -805,6 +972,15 @@ autowrap_mode = 3
 text = "You arrive upstairs before the collapse. The room should read clearly at a glance."
 vertical_alignment = 1
 theme_override_font_sizes/font_size = 15
+
+[node name="TransitionFade" type="ColorRect" parent="UI"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.06, 0.07, 0.09, 0)
 
 [node name="DebugPanel" type="PanelContainer" parent="UI"]
 visible = false
