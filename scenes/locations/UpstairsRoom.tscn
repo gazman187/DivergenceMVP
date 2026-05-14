@@ -12,80 +12,270 @@ size = Vector2(300, 12)
 size = Vector2(12, 220)
 
 [sub_resource type="RectangleShape2D" id="3"]
-size = Vector2(84, 64)
+size = Vector2(88, 70)
 
 [sub_resource type="RectangleShape2D" id="4"]
-size = Vector2(78, 58)
+size = Vector2(84, 64)
 
 [sub_resource type="RectangleShape2D" id="5"]
-size = Vector2(70, 60)
+size = Vector2(82, 72)
 
 [node name="UpstairsRoom" type="Node2D"]
 script = ExtResource("1")
 location_id = "UpstairsRoom"
-camera_zoom = 1.18
-post_collapse_camera_zoom = 1.12
+camera_zoom = 1.2
+post_collapse_camera_zoom = 1.14
 
 [node name="RoomFill" type="ColorRect" parent="."]
 offset_right = 300.0
 offset_bottom = 220.0
-color = Color(0.19, 0.16, 0.14, 1)
+color = Color(0.31, 0.29, 0.27, 1)
 
-[node name="PreCollapseWaterBloom" type="ColorRect" parent="."]
-offset_left = 150.0
-offset_top = 18.0
-offset_right = 278.0
-offset_bottom = 76.0
-color = Color(0.32, 0.26, 0.18, 0.16)
+[node name="UpperWall" type="ColorRect" parent="."]
+offset_right = 300.0
+offset_bottom = 94.0
+color = Color(0.42, 0.39, 0.35, 1)
 
-[node name="WarmGlow" type="ColorRect" parent="."]
+[node name="WallPaperBand" type="ColorRect" parent="."]
 offset_left = 18.0
 offset_top = 18.0
 offset_right = 282.0
-offset_bottom = 150.0
-color = Color(0.56, 0.38, 0.2, 0.12)
+offset_bottom = 82.0
+color = Color(0.53, 0.48, 0.42, 0.2)
 
-[node name="PreCollapseHallDraft" type="ColorRect" parent="."]
-offset_left = 188.0
-offset_top = 118.0
+[node name="CrownTrim" type="ColorRect" parent="."]
+offset_right = 300.0
+offset_bottom = 8.0
+color = Color(0.76, 0.71, 0.62, 0.75)
+
+[node name="MidWallRail" type="ColorRect" parent="."]
+offset_top = 90.0
+offset_right = 300.0
+offset_bottom = 96.0
+color = Color(0.74, 0.68, 0.58, 0.65)
+
+[node name="FloorPlane" type="ColorRect" parent="."]
+offset_top = 94.0
+offset_right = 300.0
+offset_bottom = 220.0
+color = Color(0.38, 0.31, 0.24, 1)
+
+[node name="FloorboardsBand" type="ColorRect" parent="."]
+offset_top = 94.0
+offset_right = 300.0
+offset_bottom = 220.0
+color = Color(0.53, 0.39, 0.27, 0.08)
+
+[node name="Skirting" type="ColorRect" parent="."]
+offset_top = 94.0
+offset_right = 300.0
+offset_bottom = 100.0
+color = Color(0.26, 0.22, 0.19, 0.75)
+
+[node name="CeilingBeamLeft" type="ColorRect" parent="."]
+offset_left = 34.0
+offset_top = 0.0
+offset_right = 42.0
+offset_bottom = 94.0
+color = Color(0.24, 0.21, 0.18, 0.46)
+
+[node name="CeilingBeamRight" type="ColorRect" parent="."]
+offset_left = 244.0
+offset_top = 0.0
+offset_right = 252.0
+offset_bottom = 94.0
+color = Color(0.24, 0.21, 0.18, 0.46)
+
+[node name="BedroomDoorFrame" type="ColorRect" parent="."]
+offset_left = 20.0
+offset_top = 26.0
+offset_right = 114.0
+offset_bottom = 118.0
+color = Color(0.18, 0.16, 0.14, 0.42)
+
+[node name="BedroomDoorLight" type="ColorRect" parent="."]
+offset_left = 28.0
+offset_top = 34.0
+offset_right = 102.0
+offset_bottom = 102.0
+color = Color(0.83, 0.77, 0.66, 0.18)
+
+[node name="HallwayDoorFrame" type="ColorRect" parent="."]
+offset_left = 200.0
+offset_top = 104.0
+offset_right = 286.0
+offset_bottom = 206.0
+color = Color(0.1, 0.11, 0.12, 0.48)
+
+[node name="PreCollapseHallThreatLight" type="ColorRect" parent="."]
+offset_left = 212.0
+offset_top = 112.0
+offset_right = 282.0
+offset_bottom = 194.0
+color = Color(0.58, 0.62, 0.68, 0.14)
+
+[node name="PreCollapseLeakBloom" type="ColorRect" parent="."]
+offset_left = 146.0
+offset_top = 14.0
+offset_right = 284.0
+offset_bottom = 74.0
+color = Color(0.35, 0.3, 0.18, 0.16)
+
+[node name="PreCollapseLeakTrail" type="ColorRect" parent="."]
+offset_left = 182.0
+offset_top = 32.0
+offset_right = 196.0
+offset_bottom = 132.0
+color = Color(0.18, 0.16, 0.14, 0.22)
+
+[node name="PreCollapseWeakFloorLane" type="ColorRect" parent="."]
+offset_left = 156.0
+offset_top = 112.0
 offset_right = 286.0
 offset_bottom = 190.0
-color = Color(0.36, 0.34, 0.26, 0.16)
+color = Color(0.22, 0.17, 0.13, 0.22)
 
-[node name="PreCollapsePeelingStrip" type="ColorRect" parent="."]
-offset_left = 24.0
-offset_top = 30.0
-offset_right = 40.0
-offset_bottom = 146.0
-color = Color(0.68, 0.62, 0.48, 0.12)
+[node name="PreCollapseWeakFloorStripeA" type="ColorRect" parent="."]
+offset_left = 170.0
+offset_top = 118.0
+offset_right = 176.0
+offset_bottom = 186.0
+color = Color(0.62, 0.46, 0.3, 0.2)
 
-[node name="DoorShadow" type="ColorRect" parent="."]
-offset_left = 216.0
-offset_top = 84.0
-offset_right = 292.0
-offset_bottom = 204.0
-color = Color(0.02, 0.02, 0.03, 0.14)
+[node name="PreCollapseWeakFloorStripeB" type="ColorRect" parent="."]
+offset_left = 196.0
+offset_top = 118.0
+offset_right = 202.0
+offset_bottom = 186.0
+color = Color(0.62, 0.46, 0.3, 0.16)
 
-[node name="WarmSpill" type="ColorRect" parent="."]
+[node name="PreCollapseWeakFloorStripeC" type="ColorRect" parent="."]
+offset_left = 222.0
+offset_top = 118.0
+offset_right = 228.0
+offset_bottom = 186.0
+color = Color(0.62, 0.46, 0.3, 0.14)
+
+[node name="PostCollapseDustWash" type="ColorRect" parent="."]
+visible = false
+offset_left = 136.0
+offset_top = 94.0
+offset_right = 300.0
+offset_bottom = 220.0
+color = Color(0.62, 0.58, 0.52, 0.12)
+
+[node name="PostCollapseCutoffShade" type="ColorRect" parent="."]
+visible = false
+offset_left = 188.0
+offset_top = 102.0
+offset_right = 300.0
+offset_bottom = 220.0
+color = Color(0.05, 0.05, 0.06, 0.2)
+
+[node name="CenterRug" type="ColorRect" parent="."]
+offset_left = 72.0
+offset_top = 118.0
+offset_right = 198.0
+offset_bottom = 194.0
+color = Color(0.46, 0.27, 0.19, 0.88)
+
+[node name="RugBorder" type="ColorRect" parent="."]
+offset_left = 78.0
+offset_top = 124.0
+offset_right = 192.0
+offset_bottom = 188.0
+color = Color(0.82, 0.7, 0.5, 0.1)
+
+[node name="TableShadow" type="ColorRect" parent="."]
 offset_left = 42.0
-offset_top = 42.0
-offset_right = 182.0
+offset_top = 122.0
+offset_right = 138.0
 offset_bottom = 172.0
-color = Color(0.64, 0.46, 0.26, 0.1)
+color = Color(0.05, 0.04, 0.03, 0.24)
 
 [node name="TableBlock" type="ColorRect" parent="."]
-offset_left = 42.0
-offset_top = 102.0
+offset_left = 46.0
+offset_top = 106.0
 offset_right = 132.0
 offset_bottom = 156.0
-color = Color(0.25, 0.2, 0.18, 1)
+color = Color(0.28, 0.22, 0.18, 1)
+
+[node name="TableTopBand" type="ColorRect" parent="."]
+offset_left = 46.0
+offset_top = 106.0
+offset_right = 132.0
+offset_bottom = 116.0
+color = Color(0.4, 0.32, 0.26, 1)
+
+[node name="LampGlow" type="ColorRect" parent="."]
+offset_left = 24.0
+offset_top = 64.0
+offset_right = 152.0
+offset_bottom = 178.0
+color = Color(0.9, 0.72, 0.44, 0.14)
+
+[node name="LampBase" type="ColorRect" parent="."]
+offset_left = 78.0
+offset_top = 84.0
+offset_right = 92.0
+offset_bottom = 110.0
+color = Color(0.2, 0.17, 0.15, 1)
+
+[node name="LampShade" type="ColorRect" parent="."]
+offset_left = 70.0
+offset_top = 68.0
+offset_right = 100.0
+offset_bottom = 88.0
+color = Color(0.78, 0.68, 0.5, 0.88)
+
+[node name="WardrobeShadow" type="ColorRect" parent="."]
+offset_left = 216.0
+offset_top = 44.0
+offset_right = 266.0
+offset_bottom = 122.0
+color = Color(0.03, 0.03, 0.03, 0.22)
 
 [node name="WardrobeBlock" type="ColorRect" parent="."]
-offset_left = 214.0
+offset_left = 210.0
+offset_top = 30.0
+offset_right = 258.0
+offset_bottom = 108.0
+color = Color(0.23, 0.19, 0.16, 1)
+
+[node name="WardrobeDoorSplit" type="ColorRect" parent="."]
+offset_left = 232.0
 offset_top = 34.0
-offset_right = 260.0
-offset_bottom = 110.0
-color = Color(0.26, 0.2, 0.16, 1)
+offset_right = 236.0
+offset_bottom = 104.0
+color = Color(0.41, 0.33, 0.26, 0.7)
+
+[node name="PictureFrame" type="ColorRect" parent="."]
+offset_left = 144.0
+offset_top = 34.0
+offset_right = 186.0
+offset_bottom = 62.0
+color = Color(0.2, 0.17, 0.15, 0.9)
+
+[node name="PictureInset" type="ColorRect" parent="."]
+offset_left = 150.0
+offset_top = 40.0
+offset_right = 180.0
+offset_bottom = 56.0
+color = Color(0.58, 0.52, 0.44, 0.35)
+
+[node name="TravelCase" type="ColorRect" parent="."]
+offset_left = 146.0
+offset_top = 160.0
+offset_right = 186.0
+offset_bottom = 184.0
+color = Color(0.2, 0.18, 0.16, 0.96)
+
+[node name="TravelCaseLatch" type="ColorRect" parent="."]
+offset_left = 162.0
+offset_top = 166.0
+offset_right = 170.0
+offset_bottom = 172.0
+color = Color(0.72, 0.62, 0.44, 0.7)
 
 [node name="Title" type="Label" parent="."]
 offset_left = 18.0
@@ -103,16 +293,16 @@ autowrap_mode = 3
 text = "A stale upstairs room leaning toward a hallway that already sounds too tired to trust."
 
 [node name="Player1Spawn" type="Marker2D" parent="."]
-position = Vector2(92, 178)
+position = Vector2(102, 176)
 
 [node name="Player2Spawn" type="Marker2D" parent="."]
-position = Vector2(132, 178)
+position = Vector2(142, 176)
 
 [node name="CameraFocus" type="Marker2D" parent="."]
-position = Vector2(206, 120)
+position = Vector2(158, 118)
 
 [node name="PostCollapseCameraFocus" type="Marker2D" parent="."]
-position = Vector2(218, 108)
+position = Vector2(176, 118)
 
 [node name="Walls" type="StaticBody2D" parent="."]
 collision_layer = 1
@@ -158,15 +348,15 @@ zone_label = "Move into the hallway"
 interactable_path = NodePath("../HallwayDoorInteractable")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HallwayDoorZone"]
-position = Vector2(240, 154)
+position = Vector2(242, 156)
 shape = SubResource("3")
 
 [node name="Highlight" type="ColorRect" parent="HallwayDoorZone"]
 offset_left = 198.0
-offset_top = 122.0
-offset_right = 282.0
-offset_bottom = 186.0
-color = Color(0.32, 0.52, 0.64, 0.16)
+offset_top = 120.0
+offset_right = 286.0
+offset_bottom = 190.0
+color = Color(0.36, 0.6, 0.72, 0.18)
 
 [node name="BedroomDoorZone" type="Area2D" parent="."]
 script = ExtResource("3")
@@ -177,15 +367,15 @@ zone_label = "Break for the bedroom"
 interactable_path = NodePath("../BedroomDoorInteractable")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="BedroomDoorZone"]
-position = Vector2(74, 74)
+position = Vector2(72, 72)
 shape = SubResource("4")
 
 [node name="Highlight" type="ColorRect" parent="BedroomDoorZone"]
-offset_left = 34.0
-offset_top = 46.0
+offset_left = 28.0
+offset_top = 36.0
 offset_right = 112.0
-offset_bottom = 104.0
-color = Color(0.32, 0.52, 0.64, 0.16)
+offset_bottom = 100.0
+color = Color(0.34, 0.58, 0.7, 0.16)
 
 [node name="EdgeInspectZone" type="Area2D" parent="."]
 script = ExtResource("3")
@@ -197,12 +387,12 @@ hover_audio_event = "weak_floor_groan"
 interactable_path = NodePath("../EdgeInspectInteractable")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="EdgeInspectZone"]
-position = Vector2(238, 90)
+position = Vector2(226, 92)
 shape = SubResource("5")
 
 [node name="Highlight" type="ColorRect" parent="EdgeInspectZone"]
-offset_left = 204.0
-offset_top = 60.0
-offset_right = 274.0
-offset_bottom = 120.0
-color = Color(0.52, 0.44, 0.3, 0.14)
+offset_left = 186.0
+offset_top = 56.0
+offset_right = 268.0
+offset_bottom = 128.0
+color = Color(0.66, 0.5, 0.34, 0.14)

@@ -16,20 +16,60 @@ collision_mask = 1
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("1")
 
+[node name="Shadow" type="Polygon2D" parent="."]
+position = Vector2(0, 12)
+polygon = PackedVector2Array(-14, -5, -8, -8, 0, -9, 8, -8, 14, -5, 12, 2, 4, 5, -4, 5, -12, 2)
+color = Color(0.02, 0.03, 0.04, 0.26)
+
 [node name="Outline" type="Polygon2D" parent="."]
 visible = false
-polygon = PackedVector2Array(-16, -16, 16, -16, 16, 16, -16, 16)
+polygon = PackedVector2Array(-15, -16, -7, -23, 6, -23, 14, -16, 17, -2, 13, 14, 5, 20, -5, 20, -13, 14, -17, -2)
 color = Color(0.94, 0.9, 0.78, 1)
 
 [node name="Body" type="Polygon2D" parent="."]
-polygon = PackedVector2Array(-11, -14, 11, -14, 13, 14, -13, 14)
+polygon = PackedVector2Array(-11, -12, -6, -18, 5, -18, 10, -12, 12, -1, 9, 12, 3, 16, -3, 16, -9, 12, -12, -1)
 color = Color(0.82, 0.54, 0.36, 1)
 
+[node name="Head" type="Polygon2D" parent="Body"]
+position = Vector2(0, -6)
+polygon = PackedVector2Array(-5, -8, 5, -8, 8, -2, 6, 5, 0, 8, -6, 5, -8, -2)
+color = Color(0.97, 0.88, 0.74, 0.96)
+
+[node name="Hair" type="Polygon2D" parent="Body"]
+position = Vector2(0, -12)
+polygon = PackedVector2Array(-5, -3, 5, -3, 7, 2, 3, 5, -2, 5, -7, 1)
+color = Color(0.21, 0.15, 0.12, 0.9)
+
+[node name="ChestInset" type="Polygon2D" parent="Body"]
+position = Vector2(0, 2)
+polygon = PackedVector2Array(-6, -6, 6, -6, 8, 4, 4, 9, -4, 9, -8, 4)
+color = Color(0.16, 0.14, 0.14, 0.16)
+
+[node name="ShoulderSatchel" type="Polygon2D" parent="Body"]
+position = Vector2(5, 4)
+polygon = PackedVector2Array(-2, -5, 4, -5, 6, 3, 3, 7, -3, 7, -5, 1)
+color = Color(0.35, 0.26, 0.18, 0.86)
+
+[node name="SatchelStrap" type="Polygon2D" parent="Body"]
+position = Vector2(0, 0)
+polygon = PackedVector2Array(-2, -14, 1, -14, 6, 14, 3, 14)
+color = Color(0.86, 0.78, 0.63, 0.36)
+
+[node name="FootLeft" type="Polygon2D" parent="Body"]
+position = Vector2(-4, 15)
+polygon = PackedVector2Array(-4, -1, 4, -1, 5, 3, -5, 3)
+color = Color(0.18, 0.13, 0.11, 0.9)
+
+[node name="FootRight" type="Polygon2D" parent="Body"]
+position = Vector2(4, 15)
+polygon = PackedVector2Array(-4, -1, 4, -1, 5, 3, -5, 3)
+color = Color(0.18, 0.13, 0.11, 0.9)
+
 [node name="NameLabel" type="Label" parent="."]
-offset_left = -24.0
-offset_top = -36.0
-offset_right = 28.0
-offset_bottom = -10.0
+offset_left = -34.0
+offset_top = -40.0
+offset_right = 34.0
+offset_bottom = -14.0
 horizontal_alignment = 1
 text = "P1"
 
